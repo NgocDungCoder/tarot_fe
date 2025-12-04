@@ -7,6 +7,8 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/src/bindings_interface.dart';
 import 'package:tarot_fe/views/splash/splash_controller.dart';
 import 'package:video_player/video_player.dart';
+import 'package:velocity_x/velocity_x.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class SplashBinding extends Bindings {
   @override
@@ -126,24 +128,27 @@ class _SplashPageState extends State<SplashPage> {
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              SizedBox(
-                                width: 160,
-                                height: 160,
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(100),
-                                  child: Image.asset(
-                                      "assets/icons/tarot_logo.jpg"),
+                              // Logo image
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(100),
+                                child: Image.asset(
+                                  "assets/icons/tarot_logo.jpg",
+                                  width: 160,
+                                  height: 160,
                                 ),
                               ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              Container(
-                                child: Text(
-                                  "Give your destiny card",
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                              )
+                              // Spacing
+                              10.heightBox,
+                              // Text with Dancing Script font using Velocity X
+                              "Give your destiny card"
+                                  .text
+                                  .textStyle(
+                                    GoogleFonts.dancingScript(
+                                      fontSize: 20,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                  .make(),
                             ],
                           ),
                         ),
@@ -180,31 +185,42 @@ class _SplashPageState extends State<SplashPage> {
                           ),
           ),
 
-          /// Nội dung trên video
-          Positioned(
-            top: MediaQuery.of(context).size.height * 0.10,
-            left: 0,
-            right: 0,
-            child: _hasVideoError
-                ? SizedBox.shrink()
-                : Center(
-                    child: Text(
-                    "Tarot reader",
-                    style: TextStyle(color: Colors.white),
-                  )),
-          ),
-          Positioned(
-            bottom: MediaQuery.of(context).size.height * 0.10,
-            left: 0,
-            right: 0,
-            child: _hasVideoError
-                ? SizedBox.shrink()
-                : Center(
-                    child: Text(
-                    "Give your destiny card",
-                    style: TextStyle(color: Colors.white),
-                  )),
-          ),
+          /// Overlay texts on video
+          if (!_hasVideoError) ...[
+            // Top text - Tarot reader
+            Positioned(
+              top: MediaQuery.of(context).size.height * 0.10,
+              left: 0,
+              right: 0,
+              child: "Tarot reader"
+                  .text
+                  .textStyle(
+                    GoogleFonts.dancingScript(
+                      fontSize: 32,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  )
+                  .center
+                  .make(),
+            ),
+            // Bottom text - Give your destiny card
+            Positioned(
+              bottom: MediaQuery.of(context).size.height * 0.10,
+              left: 0,
+              right: 0,
+              child: "Give your destiny card"
+                  .text
+                  .textStyle(
+                    GoogleFonts.dancingScript(
+                      fontSize: 20,
+                      color: Colors.white,
+                    ),
+                  )
+                  .center
+                  .make(),
+            ),
+          ],
         ],
       ),
     );
