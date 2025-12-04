@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 
 import '../../views/splash/splash_page.dart';
+import '../../views/main_screen/main_page.dart';
 
 class RoutePath {
   final String singlePath;
@@ -123,6 +124,11 @@ final List<GetPage> getPages = [
     name: Routes.splash.sp,
     page: () => SplashPage(),
     binding: SplashBinding(),
+  ),
+  GetPage(
+    name: Routes.main.sp,
+    page: () => const MainPage(),
+    binding: MainBinding(),
   ),
   // ...getProfilePages,
 ].toList();

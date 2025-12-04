@@ -31,6 +31,8 @@ class _SplashPageState extends State<SplashPage> {
     debugPrint("SplashPage: initState called");
     super.initState();
     _initializeVideo();
+    // Initialize controller để timer bắt đầu chạy
+    Get.find<SplashController>();
   }
 
   // Initialize video with better error handling
@@ -150,15 +152,14 @@ class _SplashPageState extends State<SplashPage> {
                     : _chewieController != null &&
                             _controller != null &&
                             _controller!.value.isInitialized
-                        ? SizedBox.expand(
-                            // Fill toàn bộ màn hình
+                        ? SizedBox(
+                            width: 200,
                             child: FittedBox(
-                              fit: BoxFit
-                                  .fitWidth, // Cover toàn bộ màn hình, crop nếu cần
+                              fit: BoxFit.fitWidth,
                               alignment: Alignment.center,
                               child: SizedBox(
-                                width: _controller!.value.size.width,
-                                height: _controller!.value.size.height,
+                                width: 290,
+                                height: 300,
                                 child: Chewie(controller: _chewieController!),
                               ),
                             ),
@@ -183,32 +184,32 @@ class _SplashPageState extends State<SplashPage> {
           if (!_hasVideoError) ...[
             // Top text - Tarot reader
             Positioned(
-              top: MediaQuery.of(context).size.height * 0.10,
+              top: MediaQuery.of(context).size.height * 0.15,
               left: 0,
               right: 0,
-              child: Center(
-                child: ShimmerText(
+              child: const Center(
+                child: SparkleText(
                   "TAROT READER",
-                  fontSize: 48,
-                  baseColor: ThemeConfig.deepPurple,
-                  shimmerColor: ThemeConfig.textWhite,
-                  fontWeight: FontWeight.w800,
+                  fontSize: 40,
+                  sparkleColor: ThemeConfig.deepPurple,
                   textAlign: TextAlign.center,
-                  duration: 4000,
                 ),
               ),
             ),
             // Bottom text - Give your destiny card
             Positioned(
-              bottom: MediaQuery.of(context).size.height * 0.10,
+              bottom: MediaQuery.of(context).size.height * 0.15,
               left: 0,
               right: 0,
               child: Center(
-                child: SparkleText(
+                child: ShimmerText(
                   "Give your destiny card !",
                   fontSize: 30,
-                  sparkleColor: ThemeConfig.deepPurple,
+                  baseColor: ThemeConfig.deepPurple,
+                  shimmerColor: ThemeConfig.textWhite,
+                  fontWeight: FontWeight.w800,
                   textAlign: TextAlign.center,
+                  duration: 4000,
                 ),
               ),
             ),
