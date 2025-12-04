@@ -1,14 +1,12 @@
 import 'package:chewie/chewie.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_common/get_reset.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_instance/src/bindings_interface.dart';
 import 'package:tarot_fe/views/splash/splash_controller.dart';
 import 'package:video_player/video_player.dart';
-import 'package:velocity_x/velocity_x.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:tarot_fe/widget/custom_text.dart';
+import 'package:tarot_fe/widget/shimmer_text.dart';
+
+import '../../configs/styles/theme_config.dart';
 
 class SplashBinding extends Bindings {
   @override
@@ -138,17 +136,13 @@ class _SplashPageState extends State<SplashPage> {
                                 ),
                               ),
                               // Spacing
-                              10.heightBox,
-                              // Text with Dancing Script font using Velocity X
-                              "Give your destiny card"
-                                  .text
-                                  .textStyle(
-                                    GoogleFonts.dancingScript(
-                                      fontSize: 20,
-                                      color: Colors.white,
-                                    ),
-                                  )
-                                  .make(),
+                              const SizedBox(height: 10),
+                              // Text with Dancing Script font
+                              const CustomText(
+                                "Give your destiny card",
+                                fontSize: 20,
+                                color: Colors.white,
+                              ),
                             ],
                           ),
                         ),
@@ -160,7 +154,7 @@ class _SplashPageState extends State<SplashPage> {
                             // Fill toàn bộ màn hình
                             child: FittedBox(
                               fit: BoxFit
-                                  .contain, // Cover toàn bộ màn hình, crop nếu cần
+                                  .fitWidth, // Cover toàn bộ màn hình, crop nếu cần
                               alignment: Alignment.center,
                               child: SizedBox(
                                 width: _controller!.value.size.width,
@@ -192,33 +186,31 @@ class _SplashPageState extends State<SplashPage> {
               top: MediaQuery.of(context).size.height * 0.10,
               left: 0,
               right: 0,
-              child: "Tarot reader"
-                  .text
-                  .textStyle(
-                    GoogleFonts.dancingScript(
-                      fontSize: 32,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  )
-                  .center
-                  .make(),
+              child: Center(
+                child: ShimmerText(
+                  "TAROT READER",
+                  fontSize: 48,
+                  baseColor: ThemeConfig.deepPurple,
+                  shimmerColor: ThemeConfig.textWhite,
+                  fontWeight: FontWeight.w800,
+                  textAlign: TextAlign.center,
+                  duration: 4000,
+                ),
+              ),
             ),
             // Bottom text - Give your destiny card
             Positioned(
               bottom: MediaQuery.of(context).size.height * 0.10,
               left: 0,
               right: 0,
-              child: "Give your destiny card"
-                  .text
-                  .textStyle(
-                    GoogleFonts.dancingScript(
-                      fontSize: 20,
-                      color: Colors.white,
-                    ),
-                  )
-                  .center
-                  .make(),
+              child: Center(
+                child: SparkleText(
+                  "Give your destiny card !",
+                  fontSize: 30,
+                  sparkleColor: ThemeConfig.deepPurple,
+                  textAlign: TextAlign.center,
+                ),
+              ),
             ),
           ],
         ],
