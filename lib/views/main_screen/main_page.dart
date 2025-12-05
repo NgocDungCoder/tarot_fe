@@ -25,34 +25,32 @@ class MainPage extends GetView<MainController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      extendBody: true, // Cho phép body mở rộng ra toàn bộ màn hình, không tự động thêm padding
-      body: SafeArea(
-        top: false, // Tắt SafeArea ở top để không có khoảng trống
-        bottom: false, // Tắt SafeArea ở bottom (đã xử lý riêng cho BottomNavigationBar)
-        left: false,
-        right: false,
-        child: Obx(() {
-          return Stack(
-            children: [
-              // Background video
-              Positioned.fill(
-                child: _buildBackground(),
-              ),
-              Column(
-                children: [
-                  // Page content
-                  Expanded(
-                    child: Container(child: _buildCurrentPage()),
-                  ),
-                  // Bottom navigation bar trong suốt
-                  _buildBottomNavigationBar(),
-                ],
-              ),
-            ],
-          );
-        }),
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        extendBody: true, // Cho phép body mở rộng ra toàn bộ màn hình, không tự động thêm padding
+        body: SafeArea(
+          child: Obx(() {
+            return Stack(
+              children: [
+                // Background video
+                Positioned.fill(
+                  child: _buildBackground(),
+                ),
+                Column(
+                  children: [
+                    // Page content
+                    Expanded(
+                      child: Container(child: _buildCurrentPage()),
+                    ),
+                    // Bottom navigation bar trong suốt
+                    _buildBottomNavigationBar(),
+                  ],
+                ),
+              ],
+            );
+          }),
+        ),
       ),
     );
   }
@@ -79,7 +77,6 @@ class MainPage extends GetView<MainController> {
       );
     }
 
-    // Luôn hiển thị video nếu có controller
     if (videoController != null) {
       return SizedBox.expand(
         child: FittedBox(
@@ -146,7 +143,7 @@ class MainPage extends GetView<MainController> {
   /// Build bottom navigation bar trong suốt với viền vàng
   Widget _buildBottomNavigationBar() {
     return Container(
-      margin: EdgeInsets.only(bottom: 10, left: 10, right: 10),
+      margin: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
         color: Colors.transparent, // Hoàn toàn trong suốt

@@ -135,7 +135,7 @@ class _FlipCardState extends State<FlipCard>
               width: widget.width,
               height: widget.height,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(8),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.3),
@@ -145,7 +145,7 @@ class _FlipCardState extends State<FlipCard>
                 ],
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(8),
                 child: isShowingBack
                     ? Image.asset(
                         widget.backImage,

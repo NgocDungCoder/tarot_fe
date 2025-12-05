@@ -1,14 +1,29 @@
+import 'dart:math';
 import 'package:get/get.dart';
 import '../../../models/tarot_card.dart';
 
 class HomeController extends GetxController {
-  // Selected tarot card
-  final _selectedCard = Rx<TarotCard?>(null);
-  TarotCard? get selectedCard => _selectedCard.value;
+  // Random card được chọn - lưu lại để không bị thay đổi mỗi lần rebuild
+  final _randomCard = Rx<TarotCard?>(null);
+  TarotCard? get randomCard => _randomCard.value;
+
+  // Flag để biết lá bài đã được lật (revealed) hay chưa
+  final _isCardRevealed = false.obs;
+  bool get isCardRevealed => _isCardRevealed.value;
 
   // Animation state để trigger fade in cho text
   final _showCardDetail = false.obs;
   bool get showCardDetail => _showCardDetail.value;
+
+  // Random instance để tạo số ngẫu nhiên thực sự
+  final _random = Random();
+
+  @override
+  void onInit() {
+    super.onInit();
+    // Random một lá bài khi khởi tạo
+    _generateRandomCard();
+  }
 
   // Sample tarot cards data - sử dụng hình ảnh có sẵn trong assets
   final List<TarotCard> _cards = const [
@@ -43,26 +58,33 @@ class HomeController extends GetxController {
 
   List<TarotCard> get cards => _cards;
 
-  /// Select a tarot card
-  void selectCard(TarotCard card) {
-    _selectedCard.value = card;
-    // Trigger animation sau một chút để đợi flip animation hoàn thành
-    Future.delayed(const Duration(milliseconds: 100), () {
-      _showCardDetail.value = true;
-    });
+  /// Reveal card - khi user lật lá bài
+  void revealCard() {
+    if (_randomCard.value != null) {
+      _isCardRevealed.value = true;
+      // Trigger animation sau một chút để đợi flip animation hoàn thành
+      Future.delayed(const Duration(milliseconds: 100), () {
+        _showCardDetail.value = true;
+      });
+    }
   }
 
-  /// Deselect card - reset về trạng thái ban đầu
-  void deselectCard() {
+  /// Reset card - reset về trạng thái ban đầu và random lá bài mới
+  void resetCard() {
     _showCardDetail.value = false;
-    _selectedCard.value = null;
+    _isCardRevealed.value = false;
+    // Random lá bài mới khi reset
+    _generateRandomCard();
   }
 
-  /// Get random card
-  void getRandomCard() {
+  /// Generate random card - sử dụng Random class thực sự
+  void _generateRandomCard() {
     if (_cards.isNotEmpty) {
-      final random = _cards[DateTime.now().millisecond % _cards.length];
-      selectCard(random);
+      // Sử dụng Random class để tạo số ngẫu nhiên thực sự
+      final randomIndex = _random.nextInt(_cards.length);
+      _randomCard.value = _cards[randomIndex];
+    } else {
+      _randomCard.value = null;
     }
   }
 }

@@ -4,6 +4,7 @@ import '../../../configs/styles/theme_config.dart';
 import '../../../models/tarot_card.dart';
 import '../../../widget/custom_text.dart';
 import '../../../widget/flip_card.dart';
+import '../../../widget/floating_card.dart';
 import '../../../widget/typewriter_text.dart';
 import 'home_controller.dart';
 
@@ -22,7 +23,8 @@ class HomePage extends GetView<HomeController> {
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Obx(() {
-        final selectedCard = controller.selectedCard;
+        final card = controller.randomCard;
+        final isRevealed = controller.isCardRevealed;
         
         return SingleChildScrollView(
           padding: const EdgeInsets.all(20),
@@ -32,10 +34,9 @@ class HomePage extends GetView<HomeController> {
               Padding(
                 padding: const EdgeInsets.only(bottom: 20.0),
                 child: CustomText(
-                  'Chọn lá bài của bạn',
+                  'Chose your destiny card',
                   fontSize: 32,
-                  color: ThemeConfig.textWhite,
-                  fontWeight: FontWeight.bold,
+                  color: ThemeConfig.textGold,
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -46,19 +47,19 @@ class HomePage extends GetView<HomeController> {
 
               const SizedBox(height: 30),
 
-              _buildCardName(selectedCard),
+              _buildCardName(isRevealed ? card : null),
 
               const SizedBox(height: 30),
 
-              _buildDescriptionContainer(selectedCard),
+              _buildDescriptionContainer(isRevealed ? card : null),
 
               const SizedBox(height: 20),
 
-              _buildMeaningContainer(selectedCard),
+              _buildMeaningContainer(isRevealed ? card : null),
 
               const SizedBox(height: 20),
 
-              _buildReversedMeaningContainer(selectedCard),
+              _buildReversedMeaningContainer(isRevealed ? card : null),
 
               const SizedBox(height: 30),
             ],
@@ -70,8 +71,9 @@ class HomePage extends GetView<HomeController> {
 
   /// Build flip card - luôn hiển thị
   Widget _buildFlipCard() {
-    final card = controller.cards.isNotEmpty ? controller.cards[0] : null;
-    final selectedCard = controller.selectedCard;
+    // Lấy card đã được random (không random lại mỗi lần rebuild)
+    final card = controller.randomCard;
+    final isRevealed = controller.isCardRevealed;
     
     if (card == null) {
       return const Center(
@@ -86,20 +88,26 @@ class HomePage extends GetView<HomeController> {
     return Center(
       child: Column(
         children: [
-          FlipCard(
-            key: ValueKey('flipCard_${selectedCard?.id ?? 'none'}'),
-            backImage: 'assets/images/back_card.png',
-            frontImage: selectedCard?.imagePath ?? card.imagePath,
-            width: 200,
-            height: 350,
-            initialFlipped: selectedCard != null, // Nếu đã chọn thì hiển thị mặt trước
-            onFlipComplete: () {
-              if (selectedCard == null) {
-                controller.selectCard(card);
-              }
-            },
+          // Wrap FlipCard với FloatingCard để thêm hiệu ứng bay bổng
+          FloatingCard(
+            floatingHeight: 100.0, // Độ cao bay bổng nhẹ nhàng
+            duration: const Duration(milliseconds: 3000), // Chu kỳ 2.5 giây
+            curve: Curves.easeInOut,
+            child: FlipCard(
+              key: ValueKey('flipCard_${card.id}_${isRevealed}'),
+              backImage: 'assets/images/back_card.png',
+              frontImage: card.imagePath,
+              width: 200,
+              height: 350,
+              initialFlipped: isRevealed, // Nếu đã lật thì hiển thị mặt trước
+              onFlipComplete: () {
+                if (!isRevealed) {
+                  controller.revealCard();
+                }
+              },
+            ),
           ),
-          if (selectedCard == null) ...[
+          if (!isRevealed) ...[
             const SizedBox(height: 20),
             const CustomText(
               'Chạm vào lá bài để lật',
