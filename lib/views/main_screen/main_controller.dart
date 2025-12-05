@@ -53,8 +53,26 @@ class MainController extends GetxController {
     _currentTab.value = tab;
   }
 
+  /// Pause video (khi navigate đến page khác)
+  void pauseVideo() {
+    if (_videoController != null && _videoController!.value.isInitialized) {
+      _videoController!.pause();
+    }
+  }
+
+  /// Resume video (khi quay lại main screen)
+  void resumeVideo() {
+    if (_videoController != null && 
+        _videoController!.value.isInitialized && 
+        !_videoController!.value.isPlaying) {
+      _videoController!.play();
+    }
+  }
+
   @override
   void onClose() {
+    // Chỉ dispose khi MainController thực sự bị đóng (khi app đóng)
+    // Không dispose khi navigate đến page khác vì MainController là permanent
     _videoController?.dispose();
     super.onClose();
   }

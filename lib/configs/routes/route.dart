@@ -2,6 +2,8 @@ import 'package:get/get.dart';
 
 import '../../views/splash/splash_page.dart';
 import '../../views/main_screen/main_page.dart';
+import '../../views/main_screen/card_detail/card_detail_page.dart';
+import '../../views/main_screen/card_draw/card_draw_page.dart';
 
 class RoutePath {
   final String singlePath;
@@ -117,6 +119,12 @@ abstract class Routes {
   /// Call
   static const call = RoutePath('/call');
   static const outgoingCall = RoutePath('/call/outgoing');
+
+  /// Card Detail
+  static const cardDetail = RoutePath('/card-detail');
+  
+  /// Card Draw
+  static const cardDraw = RoutePath('/card-draw');
 }
 
 final List<GetPage> getPages = [
@@ -129,6 +137,20 @@ final List<GetPage> getPages = [
     name: Routes.main.sp,
     page: () => const MainPage(),
     binding: MainBinding(),
+  ),
+  GetPage(
+    name: Routes.cardDetail.sp,
+    page: () => const CardDetailPage(),
+    binding: CardDetailBinding(),
+    transition: Transition.fade,
+    transitionDuration: const Duration(milliseconds: 300),
+  ),
+  GetPage(
+    name: Routes.cardDraw.sp,
+    page: () => const CardDrawPage(),
+    binding: CardDrawBinding(),
+    transition: Transition.fade,
+    transitionDuration: const Duration(milliseconds: 300),
   ),
   // ...getProfilePages,
 ].toList();

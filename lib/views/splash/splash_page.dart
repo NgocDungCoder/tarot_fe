@@ -20,16 +20,37 @@ class SplashPage extends StatefulWidget {
   State<SplashPage> createState() => _SplashPageState();
 }
 
-class _SplashPageState extends State<SplashPage> {
+class _SplashPageState extends State<SplashPage>
+    with SingleTickerProviderStateMixin {
   VideoPlayerController? _controller;
   ChewieController? _chewieController;
   bool _hasVideoError = false; // Track video initialization error
   bool _isInitializing = true; // Track initialization state
+  bool _isVideoReady = false; // Track khi video đã sẵn sàng để fade in
+  
+  late AnimationController _fadeController;
+  late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
     debugPrint("SplashPage: initState called");
     super.initState();
+    
+    // Initialize fade animation controller
+    _fadeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800), // Fade in duration
+    );
+    
+    // Create fade animation từ 0.0 đến 1.0
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeIn,
+    ));
+    
     _initializeVideo();
     // Initialize controller để timer bắt đầu chạy
     Get.find<SplashController>();
@@ -72,6 +93,17 @@ class _SplashPageState extends State<SplashPage> {
 
       // Start playing
       _controller!.play();
+      
+      // Đợi một chút để video bắt đầu play, sau đó fade in
+      Future.delayed(const Duration(milliseconds: 200), () {
+        if (mounted) {
+          setState(() {
+            _isVideoReady = true;
+          });
+          // Bắt đầu fade in animation
+          _fadeController.forward();
+        }
+      });
     } catch (error, stackTrace) {
       // Handle initialization error - video codec not supported or other issues
       debugPrint("SplashPage: Video initialization FAILED: $error");
@@ -92,6 +124,7 @@ class _SplashPageState extends State<SplashPage> {
 
   @override
   void dispose() {
+    _fadeController.dispose();
     _chewieController?.dispose();
     _controller?.dispose();
     super.dispose();
@@ -152,15 +185,18 @@ class _SplashPageState extends State<SplashPage> {
                     : _chewieController != null &&
                             _controller != null &&
                             _controller!.value.isInitialized
-                        ? SizedBox(
-                            width: 200,
-                            child: FittedBox(
-                              fit: BoxFit.fitWidth,
-                              alignment: Alignment.center,
-                              child: SizedBox(
-                                width: 290,
-                                height: 300,
-                                child: Chewie(controller: _chewieController!),
+                        ? FadeTransition(
+                            opacity: _fadeAnimation,
+                            child: SizedBox(
+                              width: 200,
+                              child: FittedBox(
+                                fit: BoxFit.fitWidth,
+                                alignment: Alignment.center,
+                                child: SizedBox(
+                                  width: 290,
+                                  height: 300,
+                                  child: Chewie(controller: _chewieController!),
+                                ),
                               ),
                             ),
                           )

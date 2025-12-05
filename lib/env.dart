@@ -54,7 +54,7 @@ class Env {
 
   final _apiUrl = const String.fromEnvironment(
     'API_URL',
-    defaultValue: '',
+    defaultValue: 'http://192.168.1.192:3000', // Default localhost MongoDB API
   );
   String get apiUrl => _apiUrl;
 

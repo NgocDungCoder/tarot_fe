@@ -1,7 +1,7 @@
 enum MainTab {
   home,
   explore,
-  cart,
+  shop,
   user,
 }
 
@@ -12,8 +12,8 @@ extension MainTabExtension on MainTab {
         return 'Home';
       case MainTab.explore:
         return 'Explore';
-      case MainTab.cart:
-        return 'Cart';
+      case MainTab.shop:
+        return 'Shop';
       case MainTab.user:
         return 'User';
     }
@@ -25,7 +25,7 @@ extension MainTabExtension on MainTab {
         return 0;
       case MainTab.explore:
         return 1;
-      case MainTab.cart:
+      case MainTab.shop:
         return 2;
       case MainTab.user:
         return 3;
@@ -39,7 +39,7 @@ extension MainTabExtension on MainTab {
       case 1:
         return MainTab.explore;
       case 2:
-        return MainTab.cart;
+        return MainTab.shop;
       case 3:
         return MainTab.user;
       default:

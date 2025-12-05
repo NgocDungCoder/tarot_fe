@@ -21,16 +21,25 @@ class TarotCard {
   });
 
   /// Create TarotCard from JSON
+  /// 
+  /// Handle null values safely với default values
   factory TarotCard.fromJson(Map<String, dynamic> json) {
     return TarotCard(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      nameVi: json['nameVi'] as String,
-      imagePath: json['imagePath'] as String,
-      description: json['description'] as String,
-      meaning: json['meaning'] as String,
-      reversedMeaning: json['reversedMeaning'] as String,
-      isReversed: json['isReversed'] as bool? ?? false,
+      id: json['id']?.toString() ?? json['_id']?.toString() ?? '',
+      name: json['name']?.toString() ?? '',
+      nameVi: json['nameVi']?.toString() ?? json['name_vi']?.toString() ?? '',
+      imagePath: json['imagePath']?.toString() ?? 
+                 json['image_path']?.toString() ?? 
+                 json['image']?.toString() ?? 
+                 '',
+      description: json['description']?.toString() ?? '',
+      meaning: json['meaning']?.toString() ?? '',
+      reversedMeaning: json['reversedMeaning']?.toString() ?? 
+                      json['reversed_meaning']?.toString() ?? 
+                      '',
+      isReversed: json['isReversed'] as bool? ?? 
+                  json['is_reversed'] as bool? ?? 
+                  false,
     );
   }
 

@@ -8,15 +8,19 @@ import 'home/home_page.dart';
 import 'home/home_controller.dart';
 import 'explore/explore_page.dart';
 import 'explore/explore_controller.dart';
-import 'cart/cart_page.dart';
-import 'cart/cart_controller.dart';
+import 'shop/shop_page.dart';
+import 'shop/shop_controller.dart';
 import 'user/user_page.dart';
 import 'user/user_controller.dart';
 
 class MainBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<MainController>(() => MainController());
+    // Sử dụng put với permanent: true để MainController không bị dispose
+    // Đảm bảo video background luôn hoạt động khi ở main screen
+    if (!Get.isRegistered<MainController>()) {
+      Get.put<MainController>(MainController(), permanent: true);
+    }
   }
 }
 
@@ -125,12 +129,12 @@ class MainPage extends GetView<MainController> {
           ExploreBinding().dependencies();
         }
         return const ExplorePage();
-      case MainTab.cart:
-        // Lazy load CartController khi cần
-        if (!Get.isRegistered<CartController>()) {
-          CartBinding().dependencies();
+      case MainTab.shop:
+        // Lazy load ShopController khi cần
+        if (!Get.isRegistered<ShopController>()) {
+          ShopBinding().dependencies();
         }
-        return const CartPage();
+        return const ShopPage();
       case MainTab.user:
         // Lazy load UserController khi cần
         if (!Get.isRegistered<UserController>()) {
@@ -201,7 +205,7 @@ class MainPage extends GetView<MainController> {
                   height: 35,
                   fit: BoxFit.contain,
                 ),
-                label: 'Cart',
+                label: 'Shop',
               ),
               BottomNavigationBarItem(
                 icon: Image.asset(
