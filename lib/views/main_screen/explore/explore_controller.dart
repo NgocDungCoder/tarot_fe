@@ -8,17 +8,22 @@ class ExploreController extends GetxController {
   final List<TarotCard> _wandCards = [];
   final List<TarotCard> _swordCards = [];
 
+  // Blog list - sử dụng RxList để reactive
+  final _blogs = <Map<String, dynamic>>[].obs;
+
   // Getters
   List<TarotCard> get majorCards => _majorCards;
   List<TarotCard> get cupCards => _cupCards;
   List<TarotCard> get wandCards => _wandCards;
   List<TarotCard> get swordCards => _swordCards;
+  List<Map<String, dynamic>> get blogs => _blogs;
 
   @override
   void onInit() {
     super.onInit();
     // Khởi tạo dữ liệu ảo
     _initializeMockData();
+    _initializeBlogs();
   }
 
   /// Khởi tạo dữ liệu ảo cho 16 lá bài
@@ -181,6 +186,48 @@ class ExploreController extends GetxController {
         meaning: 'Nghỉ ngơi, phục hồi, suy ngẫm, hòa bình, chữa lành.',
         reversedMeaning: 'Kiệt sức, thiếu nghỉ ngơi, căng thẳng.',
       ),
+    ]);
+  }
+
+  /// Khởi tạo danh sách blog
+  void _initializeBlogs() {
+    _blogs.addAll([
+      {
+        'id': 'blog_1',
+        'title': 'Hướng dẫn đọc bài Tarot cho người mới bắt đầu',
+        'description': 'Tìm hiểu cách đọc bài Tarot cơ bản và ý nghĩa của các lá bài',
+        'imagePath': 'assets/images/blog1.jpg',
+      },
+      {
+        'id': 'blog_2',
+        'title': 'Ý nghĩa của Major Arcana trong Tarot',
+        'description': 'Khám phá ý nghĩa sâu sắc của 22 lá bài Major Arcana',
+        'imagePath': 'assets/images/blog2.jpg',
+      },
+      {
+        'id': 'blog_3',
+        'title': 'Cách chọn bộ bài Tarot phù hợp',
+        'description': 'Hướng dẫn chọn bộ bài Tarot đầu tiên của bạn',
+        'imagePath': 'assets/images/blog3.jpg',
+      },
+      {
+        'id': 'blog_4',
+        'title': 'Các spread phổ biến trong Tarot',
+        'description': 'Tìm hiểu các cách trải bài Tarot phổ biến nhất',
+        'imagePath': 'assets/images/blog4.jpg',
+      },
+      {
+        'id': 'blog_5',
+        'title': 'Làm thế nào để kết nối với bộ bài Tarot',
+        'description': 'Các cách để tạo kết nối tâm linh với bộ bài của bạn',
+        'imagePath': 'assets/images/blog5.jpg',
+      },
+      {
+        'id': 'blog_6',
+        'title': 'Tarot và cuộc sống hàng ngày',
+        'description': 'Ứng dụng Tarot vào cuộc sống để có hướng dẫn tốt hơn',
+        'imagePath': 'assets/images/blog6.jpg',
+      },
     ]);
   }
 

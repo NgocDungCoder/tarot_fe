@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../configs/routes/route.dart';
 import '../../../models/user.dart';
 import '../../../widget/custom_snackbar.dart';
 
@@ -35,13 +36,17 @@ class UserController extends GetxController {
         magicPoints: 1250.0, // Magic Points - điểm ma thuật
         rewardPoints: 3500, // Reward Points - điểm tích lũy/thưởng
         zodiacSign: 'Bạch Dương',
-        // Aries
         avatarPath: 'assets/icons/tarot_logo.jpg',
         createdAt: null,
         updatedAt: null,
       );
       _isLoading.value = false;
     });
+  }
+
+  /// Navigate to profile page
+  void navigateToProfile() {
+    Get.toNamed(Routes.profile.sp);
   }
 
   /// Logout user
@@ -121,6 +126,30 @@ class UserController extends GetxController {
     CustomSnackbar.information(
       title: 'Về chúng tôi',
       message: 'Trang về chúng tôi đang được phát triển',
+    );
+  }
+
+  /// View card history
+  void viewCardHistory() {
+    CustomSnackbar.information(
+      title: 'Lịch sử rút bài',
+      message: 'Tính năng xem lịch sử rút bài đang được phát triển',
+    );
+  }
+
+  /// View transaction history
+  void viewTransactionHistory() {
+    CustomSnackbar.information(
+      title: 'Lịch sử giao dịch',
+      message: 'Tính năng xem lịch sử giao dịch đang được phát triển',
+    );
+  }
+
+  /// View orders
+  void viewOrders() {
+    CustomSnackbar.information(
+      title: 'Đơn hàng',
+      message: 'Tính năng xem đơn hàng đang được phát triển',
     );
   }
 }

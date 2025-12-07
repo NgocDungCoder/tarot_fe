@@ -145,42 +145,45 @@ class _SplashPageState extends State<SplashPage>
                     ),
                   )
                 : _hasVideoError
-                    ? Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              Colors.deepPurple.shade900,
-                              Colors.deepPurple.shade700,
-                              Colors.purple.shade900,
-                            ],
+                    ? Stack(
+                        children: [
+                          // Background fallback image
+                          SizedBox.expand(
+                            child: Image.asset(
+                              'assets/images/bg_fallback.jpg',
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                // Nếu hình ảnh fallback cũng lỗi, hiển thị nền đen
+                                return Container(color: Colors.black);
+                              },
+                            ),
                           ),
-                        ),
-                        child: Center(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              // Logo image
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(100),
-                                child: Image.asset(
-                                  "assets/icons/tarot_logo.jpg",
-                                  width: 160,
-                                  height: 160,
+                          // Logo và text ở giữa
+                          Center(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                // Logo image
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(100),
+                                  child: Image.asset(
+                                    "assets/icons/tarot_logo.jpg",
+                                    width: 160,
+                                    height: 160,
+                                  ),
                                 ),
-                              ),
-                              // Spacing
-                              const SizedBox(height: 10),
-                              // Text with Dancing Script font
-                              const CustomText(
-                                "Give your destiny card",
-                                fontSize: 20,
-                                color: Colors.white,
-                              ),
-                            ],
+                                // Spacing
+                                const SizedBox(height: 10),
+                                // Text with Dancing Script font
+                                const CustomText(
+                                  "Give your destiny card",
+                                  fontSize: 20,
+                                  color: Colors.white,
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
+                        ],
                       )
                     : _chewieController != null &&
                             _controller != null &&
@@ -200,20 +203,17 @@ class _SplashPageState extends State<SplashPage>
                               ),
                             ),
                           )
-                        : // Fallback nếu video không khởi tạo được
-                        Container(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [
-                                  Colors.deepPurple.shade900,
-                                  Colors.deepPurple.shade700,
-                                  Colors.purple.shade900,
-                                ],
-                              ),
-                            ),
+                        : // Fallback nếu video không khởi tạo được - hiển thị hình ảnh fallback
+                        SizedBox.expand(
+                          child: Image.asset(
+                            'assets/images/bg_fallback.jpg',
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              // Nếu hình ảnh fallback cũng lỗi, hiển thị nền đen
+                              return Container(color: Colors.black);
+                            },
                           ),
+                        ),
           ),
 
           /// Overlay texts on video

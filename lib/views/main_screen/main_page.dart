@@ -89,24 +89,21 @@ class MainPage extends GetView<MainController> {
     );
   }
 
-  /// Build background - video là nền mặc định, nếu có lỗi thì hiển thị gradient màu tím
+  /// Build background - video là nền mặc định, nếu có lỗi thì hiển thị gradient màu vàng huyền diệu
   Widget _buildBackground() {
     final videoController = controller.videoController;
     final hasError = controller.hasVideoError;
 
-    // Nếu có lỗi video, hiển thị gradient màu tím giống splash screen
+    // Nếu có lỗi video, hiển thị hình ảnh fallback
     if (hasError) {
-      return Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Colors.deepPurple.shade900,
-              Colors.deepPurple.shade700,
-              Colors.purple.shade900,
-            ],
-          ),
+      return SizedBox.expand(
+        child: Image.asset(
+          'assets/images/bg_fallback.jpg',
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            // Nếu hình ảnh fallback cũng lỗi, hiển thị nền đen
+            return Container(color: Colors.black);
+          },
         ),
       );
     }
@@ -128,18 +125,15 @@ class MainPage extends GetView<MainController> {
       );
     }
 
-    // Nếu chưa có controller, hiển thị gradient màu tím
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.deepPurple.shade900,
-            Colors.deepPurple.shade700,
-            Colors.purple.shade900,
-          ],
-        ),
+    // Nếu chưa có controller, hiển thị hình ảnh fallback
+    return SizedBox.expand(
+      child: Image.asset(
+        'assets/images/bg_fallback.jpg',
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          // Nếu hình ảnh fallback cũng lỗi, hiển thị nền đen
+          return Container(color: Colors.black);
+        },
       ),
     );
   }
@@ -244,7 +238,7 @@ class MainPage extends GetView<MainController> {
                   height: 35,
                   fit: BoxFit.contain,
                 ),
-                label: 'User',
+                label: 'Setting',
               ),
             ],
           ),

@@ -101,7 +101,7 @@ class CartController extends GetxController {
     _cartItems.clear();
   }
 
-  /// Checkout (thanh toán)
+  /// Checkout (thanh toán) - navigate đến trang xác nhận thanh toán
   void checkout() {
     if (isEmpty) {
       CustomSnackbar.warning(
@@ -111,43 +111,8 @@ class CartController extends GetxController {
       return;
     }
 
-    // TODO: Implement checkout logic
-    Get.dialog(
-      AlertDialog(
-        backgroundColor: Colors.black87,
-        title: const Text(
-          'Checkout',
-          style: TextStyle(color: Colors.white),
-        ),
-        content: Text(
-          'Tổng cộng: ${totalPrice.toStringAsFixed(0)} Magic Points\n\nBạn có chắc chắn muốn thanh toán?',
-          style: const TextStyle(color: Colors.white70),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text(
-              'Hủy',
-              style: TextStyle(color: Colors.grey),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              Get.back();
-              clearCart();
-              CustomSnackbar.success(
-                title: 'Thành công',
-                message: 'Thanh toán thành công!',
-              );
-            },
-            child: const Text(
-              'Thanh toán',
-              style: TextStyle(color: Colors.green),
-            ),
-          ),
-        ],
-      ),
-    );
+    // Navigate to checkout confirmation page
+    Get.toNamed('/checkout-confirmation');
   }
 }
 

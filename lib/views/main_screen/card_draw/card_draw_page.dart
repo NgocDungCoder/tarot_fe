@@ -185,18 +185,16 @@ class CardDrawPage extends GetView<CardDrawController> {
       final videoController = controller.videoController;
       final hasError = controller.hasVideoError;
 
+      // Nếu có lỗi video, hiển thị hình ảnh fallback
       if (hasError) {
-        return Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Colors.deepPurple.shade900,
-                Colors.deepPurple.shade700,
-                Colors.purple.shade900,
-              ],
-            ),
+        return SizedBox.expand(
+          child: Image.asset(
+            'assets/images/bg_fallback.jpg',
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              // Nếu hình ảnh fallback cũng lỗi, hiển thị nền đen
+              return Container(color: Colors.black);
+            },
           ),
         );
       }
@@ -218,16 +216,15 @@ class CardDrawPage extends GetView<CardDrawController> {
         );
       }
 
-      return Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Colors.black,
-              Colors.black,
-            ],
-          ),
+      // Fallback khi chưa có controller - hiển thị hình ảnh fallback
+      return SizedBox.expand(
+        child: Image.asset(
+          'assets/images/bg_fallback.jpg',
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            // Nếu hình ảnh fallback cũng lỗi, hiển thị nền đen
+            return Container(color: Colors.black);
+          },
         ),
       );
     });

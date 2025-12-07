@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../configs/routes/route.dart';
 import '../../../configs/styles/theme_config.dart';
 import '../../../models/user.dart';
 import '../../../widget/custom_text.dart';
@@ -14,6 +15,8 @@ class UserBinding extends Bindings {
 
 class UserPage extends GetView<UserController> {
   const UserPage({super.key});
+
+  // Tên hiển thị của trang là "Setting"
 
   @override
   Widget build(BuildContext context) {
@@ -45,6 +48,16 @@ class UserPage extends GetView<UserController> {
             children: [
               const SizedBox(height: 20),
               
+              // Title
+              const CustomText(
+                'Cài đặt',
+                fontSize: 28,
+                color: ThemeConfig.textGold,
+                fontWeight: FontWeight.bold,
+              ),
+              
+              const SizedBox(height: 20),
+              
               // Avatar và thông tin cơ bản
               _buildUserHeader(user),
               
@@ -60,6 +73,11 @@ class UserPage extends GetView<UserController> {
               
               const SizedBox(height: 30),
               
+              // Lịch sử và thống kê
+              _buildHistorySection(),
+              
+              const SizedBox(height: 30),
+              
               // Menu items
               _buildMenuSection(),
               
@@ -71,101 +89,111 @@ class UserPage extends GetView<UserController> {
     );
   }
 
-  /// Build user header với avatar và thông tin cơ bản
+  /// Build user header với avatar và thông tin cơ bản - có thể click để mở profile
   Widget _buildUserHeader(User user) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            ThemeConfig.deepPurple.withOpacity(0.8),
-            ThemeConfig.secondaryColor.withOpacity(0.6),
+    return GestureDetector(
+      onTap: controller.navigateToProfile,
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              ThemeConfig.deepPurple.withOpacity(0.8),
+              ThemeConfig.secondaryColor.withOpacity(0.6),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: ThemeConfig.textGold.withOpacity(0.3),
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: ThemeConfig.textGold.withOpacity(0.2),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            ),
           ],
         ),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: ThemeConfig.textGold.withOpacity(0.3),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: ThemeConfig.textGold.withOpacity(0.2),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          // Avatar
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: ThemeConfig.textGold,
-                width: 3,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: ThemeConfig.textGold.withOpacity(0.5),
-                  blurRadius: 15,
-                  spreadRadius: 2,
+        child: Row(
+          children: [
+            // Avatar
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: ThemeConfig.textGold,
+                  width: 3,
                 ),
-              ],
-            ),
-            child: ClipOval(
-              child: Image.asset(
-                user.avatarPath ?? 'assets/icons/tarot_logo.jpg',
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    color: ThemeConfig.deepPurple,
-                    child: const Icon(
-                      Icons.person,
-                      color: ThemeConfig.textGold,
-                      size: 40,
-                    ),
-                  );
-                },
+                boxShadow: [
+                  BoxShadow(
+                    color: ThemeConfig.textGold.withOpacity(0.5),
+                    blurRadius: 15,
+                    spreadRadius: 2,
+                  ),
+                ],
+              ),
+              child: ClipOval(
+                child: Image.asset(
+                  user.avatarPath ?? 'assets/icons/tarot_logo.jpg',
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      color: ThemeConfig.deepPurple,
+                      child: const Icon(
+                        Icons.person,
+                        color: ThemeConfig.textGold,
+                        size: 40,
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
-          ),
-          
-          const SizedBox(width: 20),
-          
-          // Thông tin người dùng
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CustomText(
-                  user.name,
-                  fontSize: 24,
-                  color: ThemeConfig.textWhite,
-                  fontWeight: FontWeight.bold,
-                ),
-                const SizedBox(height: 8),
-                CustomText(
-                  user.email,
-                  fontSize: 14,
-                  color: ThemeConfig.textWhite.withOpacity(0.8),
-                ),
-                if (user.phone != null) ...[
-                  const SizedBox(height: 4),
+            
+            const SizedBox(width: 20),
+            
+            // Thông tin người dùng
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   CustomText(
-                    user.phone!,
+                    user.name,
+                    fontSize: 24,
+                    color: ThemeConfig.textWhite,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  const SizedBox(height: 8),
+                  CustomText(
+                    user.email,
                     fontSize: 14,
                     color: ThemeConfig.textWhite.withOpacity(0.8),
                   ),
+                  if (user.phone != null) ...[
+                    const SizedBox(height: 4),
+                    CustomText(
+                      user.phone!,
+                      fontSize: 14,
+                      color: ThemeConfig.textWhite.withOpacity(0.8),
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
-          ),
-        ],
+            
+            // Icon mũi tên để chỉ ra có thể click
+            Icon(
+              Icons.arrow_forward_ios,
+              color: ThemeConfig.textGold.withOpacity(0.7),
+              size: 20,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -311,6 +339,40 @@ class UserPage extends GetView<UserController> {
     );
   }
 
+  /// Build history section với lịch sử rút bài và giao dịch
+  Widget _buildHistorySection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        CustomText(
+          'Lịch sử',
+          fontSize: 18,
+          color: ThemeConfig.textGold,
+          fontWeight: FontWeight.bold,
+        ),
+        const SizedBox(height: 15),
+        _buildMenuItem(
+          icon: Icons.style,
+          title: 'Lịch sử rút bài',
+          subtitle: 'Xem các lá bài đã rút',
+          onTap: controller.viewCardHistory,
+        ),
+        _buildMenuItem(
+          icon: Icons.history,
+          title: 'Lịch sử giao dịch',
+          subtitle: 'Xem lịch sử nạp/rút điểm',
+          onTap: controller.viewTransactionHistory,
+        ),
+        _buildMenuItem(
+          icon: Icons.shopping_bag,
+          title: 'Đơn hàng của tôi',
+          subtitle: 'Xem các đơn hàng đã mua',
+          onTap: controller.viewOrders,
+        ),
+      ],
+    );
+  }
+
   /// Build menu section với các mục như chính sách, đăng xuất
   Widget _buildMenuSection() {
     return Column(
@@ -364,6 +426,7 @@ class UserPage extends GetView<UserController> {
     required IconData icon,
     required String title,
     required VoidCallback onTap,
+    String? subtitle,
     bool isDestructive = false,
   }) {
     return Container(
@@ -388,6 +451,13 @@ class UserPage extends GetView<UserController> {
           fontSize: 16,
           color: isDestructive ? Colors.red : ThemeConfig.textWhite,
         ),
+        subtitle: subtitle != null
+            ? CustomText(
+                subtitle,
+                fontSize: 12,
+                color: ThemeConfig.textWhite.withOpacity(0.6),
+              )
+            : null,
         trailing: Icon(
           Icons.chevron_right,
           color: isDestructive ? Colors.red.withOpacity(0.5) : ThemeConfig.textGold.withOpacity(0.5),
@@ -399,7 +469,6 @@ class UserPage extends GetView<UserController> {
       ),
     );
   }
-
 
   /// Format number with thousand separator
   String _formatNumber(int number) {

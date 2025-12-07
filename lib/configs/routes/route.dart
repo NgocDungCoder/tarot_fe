@@ -7,6 +7,9 @@ import '../../views/main_screen/card_draw/card_draw_page.dart';
 import '../../views/main_screen/cart/cart_page.dart';
 import '../../views/main_screen/product_detail/product_detail_page.dart';
 import '../../views/main_screen/explore/view_all_cards_page.dart';
+import '../../views/main_screen/profile/profile_page.dart';
+import '../../views/main_screen/checkout_confirmation/checkout_confirmation_page.dart';
+import '../../views/main_screen/payment_success/payment_success_page.dart';
 
 class RoutePath {
   final String singlePath;
@@ -137,6 +140,12 @@ abstract class Routes {
   
   /// View All Cards
   static const viewAllCards = RoutePath('/view-all-cards');
+  
+  /// Checkout Confirmation
+  static const checkoutConfirmation = RoutePath('/checkout-confirmation');
+  
+  /// Payment Success
+  static const paymentSuccess = RoutePath('/payment-success');
 }
 
 final List<GetPage> getPages = [
@@ -182,6 +191,27 @@ final List<GetPage> getPages = [
     name: Routes.viewAllCards.sp,
     page: () => const ViewAllCardsPage(),
     binding: ViewAllCardsBinding(),
+    transition: Transition.fade,
+    transitionDuration: const Duration(milliseconds: 300),
+  ),
+  GetPage(
+    name: Routes.profile.sp,
+    page: () => const ProfilePage(),
+    binding: ProfileBinding(),
+    transition: Transition.rightToLeft,
+    transitionDuration: const Duration(milliseconds: 300),
+  ),
+  GetPage(
+    name: Routes.checkoutConfirmation.sp,
+    page: () => const CheckoutConfirmationPage(),
+    binding: CheckoutConfirmationBinding(),
+    transition: Transition.rightToLeft,
+    transitionDuration: const Duration(milliseconds: 300),
+  ),
+  GetPage(
+    name: Routes.paymentSuccess.sp,
+    page: () => const PaymentSuccessPage(),
+    binding: PaymentSuccessBinding(),
     transition: Transition.fade,
     transitionDuration: const Duration(milliseconds: 300),
   ),

@@ -26,13 +26,13 @@ class CustomSnackbar {
   /// [message] - Nội dung snackbar
   /// [type] - Loại snackbar (success, warning, error, information)
   /// [duration] - Thời gian hiển thị (mặc định 3 giây)
-  /// [snackPosition] - Vị trí hiển thị (mặc định BOTTOM)
+  /// [snackPosition] - Vị trí hiển thị (mặc định TOP - từ trên xuống)
   static void show({
     required String title,
     required String message,
     required SnackbarType type,
     Duration? duration,
-    SnackPosition snackPosition = SnackPosition.BOTTOM,
+    SnackPosition snackPosition = SnackPosition.TOP,
   }) {
     // Get colors và icon dựa trên type
     final colors = _getColorsForType(type);
@@ -50,14 +50,15 @@ class CustomSnackbar {
         color: colors['text'] as Color,
         size: 28,
       ),
-      margin: const EdgeInsets.all(16),
-      borderRadius: 12,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      borderRadius: 16,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
       boxShadows: [
         BoxShadow(
-          color: colors['background']!.withOpacity(0.3),
-          blurRadius: 8,
+          color: colors['background']!.withOpacity(0.4),
+          blurRadius: 12,
           offset: const Offset(0, 4),
+          spreadRadius: 0,
         ),
       ],
       titleText: CustomText(
@@ -73,8 +74,10 @@ class CustomSnackbar {
       ),
       isDismissible: true,
       dismissDirection: DismissDirection.horizontal,
-      forwardAnimationCurve: Curves.easeOutBack,
-      reverseAnimationCurve: Curves.easeInBack,
+      // Animation mượt mà từ trên xuống
+      forwardAnimationCurve: Curves.easeOutQuart,
+      reverseAnimationCurve: Curves.easeInQuart,
+      animationDuration: const Duration(milliseconds: 400),
     );
   }
 
@@ -83,7 +86,7 @@ class CustomSnackbar {
     required String title,
     required String message,
     Duration? duration,
-    SnackPosition snackPosition = SnackPosition.BOTTOM,
+    SnackPosition snackPosition = SnackPosition.TOP,
   }) {
     show(
       title: title,
@@ -99,7 +102,7 @@ class CustomSnackbar {
     required String title,
     required String message,
     Duration? duration,
-    SnackPosition snackPosition = SnackPosition.BOTTOM,
+    SnackPosition snackPosition = SnackPosition.TOP,
   }) {
     show(
       title: title,
@@ -115,7 +118,7 @@ class CustomSnackbar {
     required String title,
     required String message,
     Duration? duration,
-    SnackPosition snackPosition = SnackPosition.BOTTOM,
+    SnackPosition snackPosition = SnackPosition.TOP,
   }) {
     show(
       title: title,
@@ -131,7 +134,7 @@ class CustomSnackbar {
     required String title,
     required String message,
     Duration? duration,
-    SnackPosition snackPosition = SnackPosition.BOTTOM,
+    SnackPosition snackPosition = SnackPosition.TOP,
   }) {
     show(
       title: title,
