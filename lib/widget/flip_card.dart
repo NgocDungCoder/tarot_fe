@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import '../configs/styles/theme_config.dart';
 
 /// Flip card widget với hiệu ứng xoay 3D mượt mà
 /// 
@@ -33,7 +34,7 @@ class FlipCard extends StatefulWidget {
     super.key,
     required this.backImage,
     required this.frontImage,
-    this.width = 200,
+    this.width = 210,
     this.height = 350,
     this.onFlipComplete,
     this.autoFlip = false,
@@ -56,7 +57,7 @@ class _FlipCardState extends State<FlipCard>
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 3000), // 3 giây để có thời gian thấy rõ sự thay đổi
+      duration: const Duration(milliseconds: 1000), // 3 giây để có thời gian thấy rõ sự thay đổi
       vsync: this,
     );
 
@@ -160,17 +161,21 @@ class _FlipCardState extends State<FlipCard>
               width: widget.width,
               height: widget.height,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(15),
+                border: Border.all(
+                  color: ThemeConfig.textGold.withOpacity(0.5),
+                  width: 2,
+                ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.3),
-                    blurRadius: 10,
-                    offset: const Offset(0, 5),
+                    color: Colors.black.withOpacity(0.5),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
                   ),
                 ],
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(14),
                 child: Stack(
                   fit: StackFit.expand,
                   children: [

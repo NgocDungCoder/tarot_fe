@@ -185,12 +185,35 @@ class ExploreController extends GetxController {
   }
 
   /// Navigate to view all cards of a type
+  /// 
+  /// Navigates to ViewAllCardsPage với cardType và title tương ứng
   void viewAllCards(String cardType) {
-    // TODO: Navigate to detail page with all cards of that type
-    Get.snackbar(
-      'View All',
-      'View all $cardType cards',
-      snackPosition: SnackPosition.BOTTOM,
+    // Map cardType to title
+    String title;
+    switch (cardType) {
+      case 'Major':
+        title = 'Major Arcana';
+        break;
+      case 'Cup':
+        title = 'Cup';
+        break;
+      case 'Wand':
+        title = 'Wand';
+        break;
+      case 'Sword':
+        title = 'Sword';
+        break;
+      default:
+        title = cardType;
+    }
+
+    // Navigate to view all cards page
+    Get.toNamed(
+      '/view-all-cards',
+      arguments: {
+        'cardType': cardType,
+        'title': title,
+      },
     );
   }
 }

@@ -37,15 +37,22 @@ class CardDrawPage extends GetView<CardDrawController> {
               return SingleChildScrollView(
                 child: Column(
                   children: [
+                    // Header với số lượt rút và các nút
+                    _buildHeader(),
+
                     // Cards display
-                    if (!hasSelected) _buildCardsSpread(),
-                    if (hasSelected && !controller.isZooming)
-                      ...[
-                        SizedBox(
-                          height: 20,
-                        ),
-                        _buildSelectedCard(),
-                      ],
+                    if (!hasSelected) ...[
+                      _buildCardsSpread(),
+                      const SizedBox(height: 20),
+                      // Hiển thị số lượt rút còn lại dưới lá bài
+                      _buildRemainingDrawsInfo(),
+                    ],
+                    if (hasSelected && !controller.isZooming) ...[
+                      SizedBox(
+                        height: 20,
+                      ),
+                      _buildSelectedCard(),
+                    ],
 
                     // Card details (chỉ hiển thị sau khi chọn)
                     if (hasSelected) ...[
@@ -67,6 +74,109 @@ class CardDrawPage extends GetView<CardDrawController> {
         ],
       ),
     );
+  }
+
+  /// Build header với số lượt rút và các nút
+  Widget _buildHeader() {
+    return Obx(() {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            _buildActionButton(
+              icon: Icons.stars,
+              label: '${controller.remainingDraws} lượt còn lại',
+              onTap: () {},
+            ),
+            _buildActionButton(
+              icon: Icons.add_circle_outline,
+              label: 'Mua lượt',
+              onTap: () => controller.buyDraws(),
+            ),
+            // Nút lịch sử rút bài
+            _buildActionButton(
+              icon: Icons.history,
+              label: 'Lịch sử',
+              onTap: () => controller.navigateToHistory(),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  /// Build action button
+  Widget _buildActionButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.7),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: ThemeConfig.textGold.withOpacity(0.5),
+            width: 1,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              color: ThemeConfig.textGold,
+              size: 18,
+            ),
+            const SizedBox(width: 6),
+            CustomText(
+              label,
+              fontSize: 12,
+              color: ThemeConfig.textGold,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Build remaining draws info dưới lá bài
+  Widget _buildRemainingDrawsInfo() {
+    return Obx(() {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        margin: const EdgeInsets.symmetric(horizontal: 20),
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.7),
+          borderRadius: BorderRadius.circular(15),
+          border: Border.all(
+            color: ThemeConfig.textGold.withOpacity(0.5),
+            width: 1,
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.stars,
+              color: ThemeConfig.textGold,
+              size: 24,
+            ),
+            const SizedBox(width: 10),
+            CustomText(
+              'Bạn còn ${controller.remainingDraws} lượt rút bài',
+              fontSize: 16,
+              color: ThemeConfig.textGold,
+              fontWeight: FontWeight.bold,
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   /// Build background video
@@ -135,8 +245,6 @@ class CardDrawPage extends GetView<CardDrawController> {
       final isZoomCompleted = controller.isZoomCompleted;
       final zoomedCardIndex = controller.zoomedCardIndex;
 
-      // Tạo list children với z-index đúng (trái thấp nhất -> phải cao nhất)
-      // Trong Stack, widget add sau sẽ ở trên, nên add từ trái sang phải (0->4)
       final children = <Widget>[];
       for (int index = 0; index < 5; index++) {
         final isSelected = selectedIndex == index;
@@ -146,7 +254,7 @@ class CardDrawPage extends GetView<CardDrawController> {
         final cardWidth = 120.0;
         final cardHeight = 200.0;
         final centerX = MediaQuery.of(Get.context!).size.width / 2;
-        final zoomedWidth = 200.0;
+        final zoomedWidth = 210.0;
         final zoomedHeight = 350.0;
 
         // Tính toán vị trí dựa trên index - layout đẹp hơn, đều hơn
@@ -185,19 +293,22 @@ class CardDrawPage extends GetView<CardDrawController> {
         // Tính toán vị trí ban đầu (initial position) của lá bài
         final initialLeft = centerX - cardWidth / 2 + offsetX;
         final initialTop = 200.0 + offsetY;
-        
+
         // Tính toán vị trí zoomed (final position) khi được chọn
         final zoomedLeft = centerX - zoomedWidth / 2;
-        final zoomedTop = 20.0;
-        
+        final zoomedTop = 12.0;
+
         // Vị trí hiện tại: nếu đang zoom thì dùng zoomed position, nếu không thì dùng initial position
         final currentLeft = isZoomed ? zoomedLeft : initialLeft;
         final currentTop = isZoomed ? zoomedTop : initialTop;
 
+        // Kiểm tra xem có lá bài nào đang được zoom không
+        // Nếu có và lá bài hiện tại không phải lá bài đó, thì disable tap
+        final hasZoomedCard = zoomedCardIndex != null || isZooming;
+        final canTap = !hasZoomedCard || isZoomed;
+
         children.add(
           AnimatedPositioned(
-            // Z-index: trái thấp nhất (0) -> phải cao nhất (4)
-            // Index càng cao thì càng ở trên
             duration: Duration(milliseconds: isZoomed ? 1200 : 500),
             curve: Curves.easeInOutCubic,
             left: currentLeft,
@@ -221,14 +332,19 @@ class CardDrawPage extends GetView<CardDrawController> {
                   builder: (context, rotationAngle, child) {
                     return Transform.rotate(
                       angle: rotationAngle,
-                      child: GestureDetector(
-                        onTap: () => controller.selectCard(index),
-                        child: _buildCardWidget(
-                          index,
-                          cards[index],
-                          isSelected,
-                          isZoomed,
-                          isFlipping && isSelected && isZoomCompleted,
+                      child: IgnorePointer(
+                        ignoring: !canTap || !controller.canDraw,
+                        child: GestureDetector(
+                          onTap: (canTap && controller.canDraw)
+                              ? () => controller.selectCard(index)
+                              : null,
+                          child: _buildCardWidget(
+                            index,
+                            cards[index],
+                            isSelected,
+                            isZoomed,
+                            isFlipping && isSelected && isZoomCompleted,
+                          ),
                         ),
                       ),
                     );
@@ -265,28 +381,23 @@ class CardDrawPage extends GetView<CardDrawController> {
     final isZooming = controller.isZooming;
     final isZoomCompleted = controller.isZoomCompleted;
 
-    // Card ở giữa (index 2) có hero tag để match với home
     final heroTag = index == 2 && selectedIndex == null
         ? 'home_card_${card.id}'
         : 'card_${card.id}_$index';
 
     Widget cardContent;
 
-    // Chỉ hiển thị FlipCard khi đã zoom hoàn thành VÀ đang flip
-    // Đảm bảo không bị ngắt giữa chừng
     if (isZoomed && isZoomCompleted && isFlipping && isSelected && !isZooming) {
       cardContent = FlipCard(
         key: ValueKey('flipCard_${card.id}_${isSelected}_${isFlipping}'),
         backImage: 'assets/images/back_card.png',
-        frontImage: card.imagePath,
+        frontImage: controller.selectedCard.imagePath,
         width: 210,
         height: 350,
         initialFlipped: false,
         autoFlip: true, // Tự động flip sau khi widget được tạo
       );
     } else {
-      // Card bình thường hoặc đang zoom (chưa flip)
-      // Vẫn hiển thị mặt sau khi đang zoom để không bị ngắt
       cardContent = FloatingCard(
         floatingHeight: (isSelected || isZoomed) ? 0 : 8.0,
         duration: const Duration(milliseconds: 2500),

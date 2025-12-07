@@ -4,6 +4,9 @@ import '../../views/splash/splash_page.dart';
 import '../../views/main_screen/main_page.dart';
 import '../../views/main_screen/card_detail/card_detail_page.dart';
 import '../../views/main_screen/card_draw/card_draw_page.dart';
+import '../../views/main_screen/cart/cart_page.dart';
+import '../../views/main_screen/product_detail/product_detail_page.dart';
+import '../../views/main_screen/explore/view_all_cards_page.dart';
 
 class RoutePath {
   final String singlePath;
@@ -125,6 +128,15 @@ abstract class Routes {
   
   /// Card Draw
   static const cardDraw = RoutePath('/card-draw');
+  
+  /// Cart
+  static const cart = RoutePath('/cart');
+  
+  /// Product Detail
+  static const productDetail = RoutePath('/product-detail');
+  
+  /// View All Cards
+  static const viewAllCards = RoutePath('/view-all-cards');
 }
 
 final List<GetPage> getPages = [
@@ -149,6 +161,27 @@ final List<GetPage> getPages = [
     name: Routes.cardDraw.sp,
     page: () => const CardDrawPage(),
     binding: CardDrawBinding(),
+    transition: Transition.fade,
+    transitionDuration: const Duration(milliseconds: 300),
+  ),
+  GetPage(
+    name: Routes.cart.sp,
+    page: () => const CartPage(),
+    binding: CartBinding(),
+    transition: Transition.fade,
+    transitionDuration: const Duration(milliseconds: 300),
+  ),
+  GetPage(
+    name: Routes.productDetail.sp,
+    page: () => const ProductDetailPage(),
+    binding: ProductDetailBinding(),
+    transition: Transition.fade,
+    transitionDuration: const Duration(milliseconds: 300),
+  ),
+  GetPage(
+    name: Routes.viewAllCards.sp,
+    page: () => const ViewAllCardsPage(),
+    binding: ViewAllCardsBinding(),
     transition: Transition.fade,
     transitionDuration: const Duration(milliseconds: 300),
   ),

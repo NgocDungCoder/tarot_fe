@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../configs/styles/theme_config.dart';
+import '../../../configs/routes/route.dart';
 import '../../../models/product.dart';
 import '../../../widget/custom_text.dart';
+import '../cart/cart_controller.dart';
 import 'shop_controller.dart';
 
 class ShopBinding extends Bindings {
@@ -184,15 +186,55 @@ class ShopPage extends GetView<ShopController> {
       child: Row(
         children: [
           Expanded(
-            child: _buildActionButton(
-              label: 'Cart',
-              icon: "assets/icons/shopping-cart.png",
-              onTap: controller.goToCart,
-              gradient: [
-                ThemeConfig.deepPurple,
-                ThemeConfig.primaryColor,
-              ],
-            ),
+            child: Obx(() {
+              // Lấy CartController để hiển thị số lượng items
+              final cartController = Get.isRegistered<CartController>()
+                  ? Get.find<CartController>()
+                  : null;
+              final itemCount = cartController?.totalItems ?? 0;
+
+              return Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  _buildActionButton(
+                    label: 'Cart',
+                    icon: "assets/icons/shopping-cart.png",
+                    onTap: controller.goToCart,
+                    gradient: [
+                      ThemeConfig.deepPurple,
+                      ThemeConfig.primaryColor,
+                    ],
+                  ),
+                  // Badge hiển thị số lượng items
+                  if (itemCount > 0)
+                    Positioned(
+                      right: 8,
+                      top: 8,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 20,
+                          minHeight: 20,
+                        ),
+                        child: Center(
+                          child: Text(
+                            itemCount > 99 ? '99+' : '$itemCount',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            }),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -305,11 +347,10 @@ class ShopPage extends GetView<ShopController> {
   Widget _buildProductCard(Product product) {
     return GestureDetector(
       onTap: () {
-        // TODO: Navigate to product detail
-        Get.snackbar(
-          product.nameVi,
-          'Product detail coming soon',
-          snackPosition: SnackPosition.BOTTOM,
+        // Navigate to product detail page
+        Get.toNamed(
+          Routes.productDetail.sp,
+          arguments: product,
         );
       },
       child: Container(
@@ -411,31 +452,32 @@ class ShopPage extends GetView<ShopController> {
                       overflow: TextOverflow.ellipsis,
                     ),
 
-                    // Price
+                    // Price and Add to Cart button
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         CustomText(
-                          '\$${product.price.toStringAsFixed(2)}',
+                          '${product.price.toStringAsFixed(0)} MP',
                           fontSize: 16,
                           color: ThemeConfig.textGoldLight,
                           fontWeight: FontWeight.bold,
                         ),
-                        Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: ThemeConfig.primaryColor.withOpacity(0.3),
-                            borderRadius: BorderRadius.circular(6),
-                            border: Border.all(
-                              color: ThemeConfig.textGold.withOpacity(0.3),
-                              width: 1,
+                        GestureDetector(
+                          onTap: () {
+                            controller.addToCart(product);
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: ThemeConfig.primaryColor.withOpacity(0.3),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: ThemeConfig.textGold.withOpacity(0.5),
+                                width: 1,
+                              ),
                             ),
-                          ),
-                          child: Image.asset(
-                            "assets/icons/add-to-cart.png",
-                            fit: BoxFit.contain,
-                            height: 16,
-                            width: 16,
+                            child: Image.asset("assets/icons/add-to-cart.png", height: 18, width: 18, fit: BoxFit.contain,),
+
                           ),
                         ),
                       ],

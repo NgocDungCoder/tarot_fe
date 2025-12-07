@@ -2,6 +2,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../models/product.dart';
+import '../../../widget/custom_snackbar.dart';
+import '../cart/cart_controller.dart';
+import '../cart/cart_page.dart';
 
 class ShopController extends GetxController {
   // Dummy products data
@@ -126,23 +129,31 @@ class ShopController extends GetxController {
     ];
   }
 
-  /// Navigate to cart
+  /// Navigate to cart page
   void goToCart() {
-    // TODO: Navigate to cart page
-    Get.snackbar(
-      'Cart',
-      'Cart feature coming soon',
-      snackPosition: SnackPosition.BOTTOM,
-    );
+    // Đảm bảo CartController đã được khởi tạo
+    if (!Get.isRegistered<CartController>()) {
+      CartBinding().dependencies();
+    }
+    Get.toNamed('/cart');
+  }
+
+  /// Add product to cart
+  void addToCart(Product product) {
+    // Đảm bảo CartController đã được khởi tạo
+    if (!Get.isRegistered<CartController>()) {
+      CartBinding().dependencies();
+    }
+    final cartController = Get.find<CartController>();
+    cartController.addToCart(product);
   }
 
   /// Navigate to redeem gift
   void goToRedeemGift() {
     // TODO: Navigate to redeem gift page
-    Get.snackbar(
-      'Redeem Gift',
-      'Redeem gift feature coming soon',
-      snackPosition: SnackPosition.BOTTOM,
+    CustomSnackbar.information(
+      title: 'Đổi quà',
+      message: 'Tính năng đổi quà sắp ra mắt',
     );
   }
 

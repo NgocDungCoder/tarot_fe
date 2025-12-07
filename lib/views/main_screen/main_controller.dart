@@ -16,6 +16,9 @@ class MainController extends GetxController {
   final _hasVideoError = false.obs;
   bool get hasVideoError => _hasVideoError.value;
 
+  // Double back press to exit
+  DateTime? _lastBackPressTime;
+
   @override
   void onInit() {
     super.onInit();
@@ -67,6 +70,22 @@ class MainController extends GetxController {
         !_videoController!.value.isPlaying) {
       _videoController!.play();
     }
+  }
+
+  /// Handle back button press - double press to exit
+  /// Returns true if should exit app, false if should show snackbar
+  bool handleBackPress() {
+    final now = DateTime.now();
+    
+    // Nếu chưa có lần back press nào hoặc đã quá 2 giây từ lần back press trước
+    if (_lastBackPressTime == null || 
+        now.difference(_lastBackPressTime!) > const Duration(seconds: 2)) {
+      _lastBackPressTime = now;
+      return false; // Không exit, chỉ hiển thị snackbar
+    }
+    
+    // Nếu back press lần thứ 2 trong vòng 2 giây thì exit app
+    return true;
   }
 
   @override

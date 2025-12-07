@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
+import 'dart:io';
 import '../../../configs/styles/theme_config.dart';
+import '../../../widget/custom_text.dart';
+import '../../../widget/custom_snackbar.dart';
 import 'main_controller.dart';
 import 'main_tab_enum.dart';
 import 'home/home_page.dart';
@@ -12,6 +15,7 @@ import 'shop/shop_page.dart';
 import 'shop/shop_controller.dart';
 import 'user/user_page.dart';
 import 'user/user_controller.dart';
+import 'cart/cart_controller.dart';
 
 class MainBinding extends Bindings {
   @override
@@ -20,6 +24,11 @@ class MainBinding extends Bindings {
     // Đảm bảo video background luôn hoạt động khi ở main screen
     if (!Get.isRegistered<MainController>()) {
       Get.put<MainController>(MainController(), permanent: true);
+    }
+    
+    // Khởi tạo CartController để có thể truy cập từ nhiều nơi
+    if (!Get.isRegistered<CartController>()) {
+      Get.put<CartController>(CartController(), permanent: true);
     }
   }
 }
@@ -30,30 +39,51 @@ class MainPage extends GetView<MainController> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        extendBody: true, // Cho phép body mở rộng ra toàn bộ màn hình, không tự động thêm padding
-        body: SafeArea(
-          child: Obx(() {
-            return Stack(
-              children: [
-                // Background video
-                Positioned.fill(
-                  child: _buildBackground(),
-                ),
-                Column(
-                  children: [
-                    // Page content
-                    Expanded(
-                      child: Container(child: _buildCurrentPage()),
-                    ),
-                    // Bottom navigation bar trong suốt
-                    _buildBottomNavigationBar(),
-                  ],
-                ),
-              ],
+      child: PopScope(
+        canPop: false, // Chặn back button mặc định
+        onPopInvoked: (didPop) async {
+          if (didPop) return;
+          
+          // Kiểm tra double back press
+          final shouldExit = controller.handleBackPress();
+          
+          if (shouldExit) {
+            // Exit app
+            exit(0);
+          } else {
+            // Hiển thị snackbar yêu cầu back thêm lần nữa
+            CustomSnackbar.warning(
+              title: 'Nhấn lại để thoát',
+              message: 'Nhấn nút back thêm một lần nữa để thoát ứng dụng',
+              duration: const Duration(seconds: 2),
             );
-          }),
+          }
+        },
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          extendBody: true, // Cho phép body mở rộng ra toàn bộ màn hình, không tự động thêm padding
+          body: SafeArea(
+            child: Obx(() {
+              return Stack(
+                children: [
+                  // Background video
+                  Positioned.fill(
+                    child: _buildBackground(),
+                  ),
+                  Column(
+                    children: [
+                      // Page content
+                      Expanded(
+                        child: Container(child: _buildCurrentPage()),
+                      ),
+                      // Bottom navigation bar trong suốt
+                      _buildBottomNavigationBar(),
+                    ],
+                  ),
+                ],
+              );
+            }),
+          ),
         ),
       ),
     );
