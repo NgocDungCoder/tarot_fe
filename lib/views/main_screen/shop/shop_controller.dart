@@ -150,11 +150,7 @@ class ShopController extends GetxController {
 
   /// Navigate to redeem gift
   void goToRedeemGift() {
-    // TODO: Navigate to redeem gift page
-    CustomSnackbar.information(
-      title: 'Đổi quà',
-      message: 'Tính năng đổi quà sắp ra mắt',
-    );
+    Get.toNamed('/redeem-gift');
   }
 
   @override

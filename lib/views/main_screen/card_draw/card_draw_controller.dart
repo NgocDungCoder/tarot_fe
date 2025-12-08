@@ -8,6 +8,7 @@ import '../../../services/storage_service.dart';
 import '../../../widget/custom_snackbar.dart';
 import '../home/home_controller.dart';
 import '../main_controller.dart';
+import '../card_draw_history/card_draw_history_controller.dart';
 
 class CardDrawController extends GetxController {
   // Card đã được random từ home controller
@@ -251,6 +252,11 @@ class CardDrawController extends GetxController {
       _drawHistory.removeRange(50, _drawHistory.length);
     }
     _saveDrawHistory();
+
+    // Also save to CardDrawHistoryController if registered
+    if (Get.isRegistered<CardDrawHistoryController>()) {
+      Get.find<CardDrawHistoryController>().addHistory(history);
+    }
   }
 
   /// Mua thêm lượt rút bài
@@ -418,12 +424,7 @@ class CardDrawController extends GetxController {
 
   /// Navigate to draw history page
   void navigateToHistory() {
-    // TODO: Navigate to history page
-    CustomSnackbar.information(
-      title: 'Lịch sử rút bài',
-      message: 'Bạn đã rút ${_drawHistory.length} lá bài',
-      duration: const Duration(seconds: 2),
-    );
+    Get.toNamed('/card-draw-history');
   }
 
   /// User flip card manually

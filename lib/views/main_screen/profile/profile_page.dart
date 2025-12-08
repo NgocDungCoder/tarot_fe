@@ -4,6 +4,7 @@ import '../../../configs/styles/theme_config.dart';
 import '../../../models/user.dart';
 import '../../../widget/custom_text.dart';
 import '../../../widget/custom_snackbar.dart';
+import '../../../widget/video_background.dart';
 import 'profile_controller.dart';
 
 class ProfileBinding extends Bindings {
@@ -18,8 +19,9 @@ class ProfilePage extends GetView<ProfileController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
+    return VideoBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -89,7 +91,7 @@ class ProfilePage extends GetView<ProfileController> {
           ),
         );
       }),
-    );
+    ),);
   }
 
   /// Build user header với avatar và thông tin cơ bản - copy từ trang user

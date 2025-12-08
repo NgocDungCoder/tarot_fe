@@ -27,14 +27,14 @@ class UserController extends GetxController {
 
     // Simulate API call delay
     Future.delayed(const Duration(milliseconds: 500), () {
-      // Dữ liệu mẫu
+      // Dữ liệu mẫu với 100000 điểm mặc định
       _user.value = const User(
         id: '1',
         name: 'Nguyễn Văn A',
         email: 'nguyenvana@example.com',
         phone: '+84 123 456 789',
-        magicPoints: 1250.0, // Magic Points - điểm ma thuật
-        rewardPoints: 3500, // Reward Points - điểm tích lũy/thưởng
+        magicPoints: 100000.0, // Magic Points - điểm ma thuật (mặc định 100000)
+        rewardPoints: 100000, // Reward Points - điểm tích lũy/thưởng (mặc định 100000)
         zodiacSign: 'Bạch Dương',
         avatarPath: 'assets/icons/tarot_logo.jpg',
         createdAt: null,
@@ -131,25 +131,60 @@ class UserController extends GetxController {
 
   /// View card history
   void viewCardHistory() {
-    CustomSnackbar.information(
-      title: 'Lịch sử rút bài',
-      message: 'Tính năng xem lịch sử rút bài đang được phát triển',
-    );
+    Get.toNamed('/card-draw-history');
   }
 
   /// View transaction history
   void viewTransactionHistory() {
-    CustomSnackbar.information(
-      title: 'Lịch sử giao dịch',
-      message: 'Tính năng xem lịch sử giao dịch đang được phát triển',
-    );
+    Get.toNamed('/transaction-history');
   }
 
   /// View orders
   void viewOrders() {
-    CustomSnackbar.information(
-      title: 'Đơn hàng',
-      message: 'Tính năng xem đơn hàng đang được phát triển',
+    Get.toNamed('/order-history');
+  }
+  
+  /// View redeem history
+  void viewRedeemHistory() {
+    Get.toNamed('/redeem-history');
+  }
+
+  /// Update user data
+  void updateUser(User updatedUser) {
+    _user.value = updatedUser;
+  }
+
+  /// Add magic points (nạp tiền)
+  void addMagicPoints(double amount) {
+    if (_user.value != null) {
+      _user.value = _user.value!.copyWith(
+        magicPoints: _user.value!.magicPoints + amount,
+      );
+    }
+  }
+
+  /// Subtract magic points (trừ điểm)
+  void subtractMagicPoints(double amount) {
+    if (_user.value != null) {
+      final newAmount = (_user.value!.magicPoints - amount).clamp(0.0, double.infinity);
+      _user.value = _user.value!.copyWith(
+        magicPoints: newAmount,
+      );
+    }
+  }
+
+  /// Check if user has enough magic points
+  bool hasEnoughMagicPoints(double amount) {
+    return _user.value != null && _user.value!.magicPoints >= amount;
+  }
+
+  /// Navigate to deposit page
+  void navigateToDeposit({double? requiredAmount}) {
+    Get.toNamed(
+      Routes.payment.sp,
+      arguments: {
+        'requiredAmount': requiredAmount,
+      },
     );
   }
 }

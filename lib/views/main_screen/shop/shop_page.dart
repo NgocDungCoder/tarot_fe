@@ -4,6 +4,7 @@ import '../../../configs/styles/theme_config.dart';
 import '../../../configs/routes/route.dart';
 import '../../../models/product.dart';
 import '../../../widget/custom_text.dart';
+import '../../../widget/video_background.dart';
 import '../cart/cart_controller.dart';
 import 'shop_controller.dart';
 
@@ -19,8 +20,9 @@ class ShopPage extends GetView<ShopController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
+    return VideoBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
@@ -60,7 +62,7 @@ class ShopPage extends GetView<ShopController> {
           ],
         ),
       ),
-    );
+      ),);
   }
 
   /// Build banner slider
@@ -488,8 +490,7 @@ class ShopPage extends GetView<ShopController> {
             ),
           ],
         ),
-      ),
-    );
+      ),);
   }
 }
 

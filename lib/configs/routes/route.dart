@@ -1,5 +1,10 @@
 import 'package:get/get.dart';
 
+import '../../views/main_screen/order_history/order_history_page.dart';
+import '../../views/main_screen/redeem_history/redeem_history_page.dart';
+import '../../views/main_screen/card_draw_history/card_draw_history_page.dart';
+import '../../views/main_screen/transaction_history/transaction_history_page.dart';
+import '../../views/main_screen/payment/payment_page.dart';
 import '../../views/splash/splash_page.dart';
 import '../../views/main_screen/main_page.dart';
 import '../../views/main_screen/card_detail/card_detail_page.dart';
@@ -10,6 +15,7 @@ import '../../views/main_screen/explore/view_all_cards_page.dart';
 import '../../views/main_screen/profile/profile_page.dart';
 import '../../views/main_screen/checkout_confirmation/checkout_confirmation_page.dart';
 import '../../views/main_screen/payment_success/payment_success_page.dart';
+import '../../views/main_screen/redeem_gift/redeem_gift_page.dart';
 
 class RoutePath {
   final String singlePath;
@@ -144,8 +150,26 @@ abstract class Routes {
   /// Checkout Confirmation
   static const checkoutConfirmation = RoutePath('/checkout-confirmation');
   
+  /// Payment
+  static const payment = RoutePath('/payment');
+  
   /// Payment Success
   static const paymentSuccess = RoutePath('/payment-success');
+  
+  /// Redeem Gift
+  static const redeemGift = RoutePath('/redeem-gift');
+  
+  /// Order History
+  static const orderHistory = RoutePath('/order-history');
+  
+  /// Redeem History
+  static const redeemHistory = RoutePath('/redeem-history');
+  
+  /// Card Draw History
+  static const cardDrawHistory = RoutePath('/card-draw-history');
+  
+  /// Transaction History
+  static const transactionHistory = RoutePath('/transaction-history');
 }
 
 final List<GetPage> getPages = [
@@ -209,10 +233,52 @@ final List<GetPage> getPages = [
     transitionDuration: const Duration(milliseconds: 300),
   ),
   GetPage(
+    name: Routes.payment.sp,
+    page: () => const PaymentPage(),
+    binding: PaymentBinding(),
+    transition: Transition.rightToLeft,
+    transitionDuration: const Duration(milliseconds: 300),
+  ),
+  GetPage(
     name: Routes.paymentSuccess.sp,
     page: () => const PaymentSuccessPage(),
     binding: PaymentSuccessBinding(),
     transition: Transition.fade,
+    transitionDuration: const Duration(milliseconds: 300),
+  ),
+  GetPage(
+    name: Routes.redeemGift.sp,
+    page: () => const RedeemGiftPage(),
+    binding: RedeemGiftBinding(),
+    transition: Transition.rightToLeft,
+    transitionDuration: const Duration(milliseconds: 300),
+  ),
+  GetPage(
+    name: Routes.orderHistory.sp,
+    page: () => const OrderHistoryPage(),
+    binding: OrderHistoryBinding(),
+    transition: Transition.rightToLeft,
+    transitionDuration: const Duration(milliseconds: 300),
+  ),
+  GetPage(
+    name: Routes.redeemHistory.sp,
+    page: () => const RedeemHistoryPage(),
+    binding: RedeemHistoryBinding(),
+    transition: Transition.rightToLeft,
+    transitionDuration: const Duration(milliseconds: 300),
+  ),
+  GetPage(
+    name: Routes.cardDrawHistory.sp,
+    page: () => const CardDrawHistoryPage(),
+    binding: CardDrawHistoryBinding(),
+    transition: Transition.rightToLeft,
+    transitionDuration: const Duration(milliseconds: 300),
+  ),
+  GetPage(
+    name: Routes.transactionHistory.sp,
+    page: () => const TransactionHistoryPage(),
+    binding: TransactionHistoryBinding(),
+    transition: Transition.rightToLeft,
     transitionDuration: const Duration(milliseconds: 300),
   ),
   // ...getProfilePages,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../configs/styles/theme_config.dart';
 import '../../../widget/custom_text.dart';
+import '../../../widget/video_background.dart';
 import 'payment_success_controller.dart';
 
 class PaymentSuccessBinding extends Bindings {
@@ -16,79 +17,78 @@ class PaymentSuccessPage extends GetView<PaymentSuccessController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: SafeArea(
-        child: Obx(() {
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const SizedBox(height: 40),
+    return VideoBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox(height: 40),
 
-                // Success icon
-                Container(
-                  width: 120,
-                  height: 120,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: ThemeConfig.success.withOpacity(0.2),
-                    border: Border.all(
-                      color: ThemeConfig.success,
-                      width: 4,
-                    ),
-                  ),
-                  child: const Icon(
-                    Icons.check_circle,
+              // Success icon
+              Container(
+                width: 120,
+                height: 120,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: ThemeConfig.success.withOpacity(0.2),
+                  border: Border.all(
                     color: ThemeConfig.success,
-                    size: 80,
+                    width: 4,
                   ),
                 ),
-
-                const SizedBox(height: 30),
-
-                // Success title
-                const CustomText(
-                  'Thanh toán thành công!',
-                  fontSize: 32,
-                  color: ThemeConfig.textGold,
-                  fontWeight: FontWeight.bold,
-                  textAlign: TextAlign.center,
+                child: const Icon(
+                  Icons.check_circle,
+                  color: ThemeConfig.success,
+                  size: 80,
                 ),
+              ),
 
-                const SizedBox(height: 20),
+              const SizedBox(height: 30),
 
-                // Success message
-                CustomText(
-                  'Cảm ơn bạn đã mua hàng.\nĐơn hàng của bạn đang được xử lý.',
-                  fontSize: 16,
-                  color: ThemeConfig.textWhite.withOpacity(0.8),
-                  textAlign: TextAlign.center,
-                ),
+              // Success title
+              const CustomText(
+                'Thanh toán thành công!',
+                fontSize: 32,
+                color: ThemeConfig.textGold,
+                fontWeight: FontWeight.bold,
+                textAlign: TextAlign.center,
+              ),
 
-                const SizedBox(height: 40),
+              const SizedBox(height: 20),
 
-                // Order summary
-                _buildOrderSummary(),
+              // Success message
+              CustomText(
+                'Cảm ơn bạn đã mua hàng.\nĐơn hàng của bạn đang được xử lý.',
+                fontSize: 16,
+                color: ThemeConfig.textWhite.withOpacity(0.8),
+                textAlign: TextAlign.center,
+              ),
 
-                const SizedBox(height: 40),
+              const SizedBox(height: 40),
 
-                // Reward points info
-                _buildRewardPointsInfo(),
+              // Order summary
+              _buildOrderSummary(),
 
-                const SizedBox(height: 40),
+              const SizedBox(height: 40),
 
-                // Action buttons
-                _buildActionButtons(),
+              // Reward points info
+              _buildRewardPointsInfo(),
 
-                const SizedBox(height: 20),
-              ],
-            ),
-          );
-        }),
+              const SizedBox(height: 40),
+
+              // Action buttons
+              _buildActionButtons(),
+
+              const SizedBox(height: 20),
+            ],
+          ),
+        ),
       ),
-    );
+    ),);
   }
 
   /// Build order summary
@@ -120,37 +120,35 @@ class PaymentSuccessPage extends GetView<PaymentSuccessController> {
             fontWeight: FontWeight.bold,
           ),
           const SizedBox(height: 20),
-          Obx(() {
-            return Column(
-              children: [
-                _buildInfoRow(
-                  icon: Icons.receipt_long,
-                  label: 'Mã đơn hàng',
-                  value: controller.orderId,
-                ),
+          Column(
+            children: [
+              _buildInfoRow(
+                icon: Icons.receipt_long,
+                label: 'Mã đơn hàng',
+                value: controller.orderId,
+              ),
+              const SizedBox(height: 12),
+              _buildInfoRow(
+                icon: Icons.payment,
+                label: 'Tổng thanh toán',
+                value: '${controller.totalAmount.toStringAsFixed(0)} MP',
+              ),
+              const SizedBox(height: 12),
+              _buildInfoRow(
+                icon: Icons.card_giftcard,
+                label: 'Điểm thưởng nhận được',
+                value: '+${controller.rewardPoints.toStringAsFixed(0)} RP',
+              ),
+              if (controller.selectedVoucher != null) ...[
                 const SizedBox(height: 12),
                 _buildInfoRow(
-                  icon: Icons.payment,
-                  label: 'Tổng thanh toán',
-                  value: '${controller.totalAmount.toStringAsFixed(0)} MP',
+                  icon: Icons.local_offer,
+                  label: 'Voucher đã dùng',
+                  value: controller.selectedVoucher!['code'] ?? '',
                 ),
-                const SizedBox(height: 12),
-                _buildInfoRow(
-                  icon: Icons.card_giftcard,
-                  label: 'Điểm thưởng nhận được',
-                  value: '+${controller.rewardPoints.toStringAsFixed(0)} RP',
-                ),
-                if (controller.selectedVoucher != null) ...[
-                  const SizedBox(height: 12),
-                  _buildInfoRow(
-                    icon: Icons.local_offer,
-                    label: 'Voucher đã dùng',
-                    value: controller.selectedVoucher!['code'] ?? '',
-                  ),
-                ],
               ],
-            );
-          }),
+            ],
+          ),
         ],
       ),
     );
@@ -229,12 +227,12 @@ class PaymentSuccessPage extends GetView<PaymentSuccessController> {
                   color: ThemeConfig.textWhite,
                 ),
                 const SizedBox(height: 4),
-                Obx(() => CustomText(
-                      '+${controller.rewardPoints.toStringAsFixed(0)} RP',
-                      fontSize: 24,
-                      color: ThemeConfig.textGold,
-                      fontWeight: FontWeight.bold,
-                    )),
+                CustomText(
+                  '+${controller.rewardPoints.toStringAsFixed(0)} RP',
+                  fontSize: 24,
+                  color: ThemeConfig.textGold,
+                  fontWeight: FontWeight.bold,
+                ),
                 const SizedBox(height: 4),
                 const CustomText(
                   'Đã được cộng vào tài khoản',

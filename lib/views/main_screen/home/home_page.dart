@@ -4,6 +4,7 @@ import '../../../configs/styles/theme_config.dart';
 import '../../../models/tarot_card.dart';
 import '../../../widget/custom_text.dart';
 import '../../../widget/floating_card.dart';
+import '../../../widget/video_background.dart';
 import 'home_controller.dart';
 
 class HomeBinding extends Bindings {
@@ -18,8 +19,9 @@ class HomePage extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
+    return VideoBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
       body: Obx(() {
         final card = controller.randomCard;
         final isRevealed = controller.isCardRevealed;
@@ -48,7 +50,7 @@ class HomePage extends GetView<HomeController> {
           ),
         );
       }),
-    );
+    ),);
   }
 
   /// Build card - tap để chuyển sang trang rút bài
@@ -131,6 +133,7 @@ class HomePage extends GetView<HomeController> {
           ),
         ],
       ),
+
     );
   }
 

@@ -29,19 +29,7 @@ class PaymentSuccessController extends GetxController {
 
   /// View orders
   void viewOrders() {
-    // Pop về main page và chuyển sang tab user/setting
-    Get.until((route) => route.settings.name == '/main');
-    
-    // Chuyển sang tab user nếu MainController đã được đăng ký
-    if (Get.isRegistered<MainController>()) {
-      final mainController = Get.find<MainController>();
-      mainController.changeTab(MainTab.user);
-    }
-    
-    CustomSnackbar.information(
-      title: 'Đơn hàng',
-      message: 'Tính năng xem đơn hàng đang được phát triển',
-    );
+    Get.toNamed('/order-history');
   }
 }
 

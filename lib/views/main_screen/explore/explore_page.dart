@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../../../configs/styles/theme_config.dart';
 import '../../../models/tarot_card.dart';
 import '../../../widget/custom_text.dart';
+import '../../../widget/video_background.dart';
 import 'explore_controller.dart';
 
 class ExploreBinding extends Bindings {
@@ -17,8 +18,9 @@ class ExplorePage extends GetView<ExploreController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
+    return VideoBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
       body: SafeArea(
         child:
         SingleChildScrollView(
@@ -81,7 +83,7 @@ class ExplorePage extends GetView<ExploreController> {
           )
         ),
 
-    );
+    ),);
   }
 
   /// Build card section với GridView 2x2 và nút "Xem thêm tất cả"
@@ -357,6 +359,6 @@ class ExplorePage extends GetView<ExploreController> {
           ),
         ),
       ),
-    );
+      );
   }
 }

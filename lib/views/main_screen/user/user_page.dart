@@ -4,6 +4,7 @@ import '../../../configs/routes/route.dart';
 import '../../../configs/styles/theme_config.dart';
 import '../../../models/user.dart';
 import '../../../widget/custom_text.dart';
+import '../../../widget/video_background.dart';
 import 'user_controller.dart';
 
 class UserBinding extends Bindings {
@@ -20,7 +21,8 @@ class UserPage extends GetView<UserController> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
+    return VideoBackground(
+      child: SafeArea(
       child: Obx(() {
         if (controller.isLoading) {
           return const Center(
@@ -86,6 +88,7 @@ class UserPage extends GetView<UserController> {
           ),
         );
       }),
+      ),
     );
   }
 
@@ -200,27 +203,55 @@ class UserPage extends GetView<UserController> {
 
   /// Build balance section với Magic Points và Reward Points
   Widget _buildBalanceSection(User user) {
-    return Row(
+    return Column(
       children: [
-        // Magic Points - điểm ma thuật (nạp tiền để mua)
-        Expanded(
-          child: _buildBalanceCard(
-            title: 'Magic Points',
-            value: '${_formatNumber(user.magicPoints.toInt())}',
-            icon: Icons.auto_awesome,
-            color: ThemeConfig.secondaryColor,
-          ),
+        Row(
+          children: [
+            // Magic Points - điểm ma thuật (nạp tiền để mua)
+            Expanded(
+              child: _buildBalanceCard(
+                title: 'Magic Points',
+                value: '${_formatNumber(user.magicPoints.toInt())}',
+                icon: Icons.auto_awesome,
+                color: ThemeConfig.secondaryColor,
+              ),
+            ),
+            
+            const SizedBox(width: 15),
+            
+            // Reward Points - điểm tích lũy/thưởng
+            Expanded(
+              child: _buildBalanceCard(
+                title: 'Reward Points',
+                value: '${_formatNumber(user.rewardPoints)}',
+                icon: Icons.card_giftcard,
+                color: ThemeConfig.textGold,
+              ),
+            ),
+          ],
         ),
-        
-        const SizedBox(width: 15),
-        
-        // Reward Points - điểm tích lũy/thưởng
-        Expanded(
-          child: _buildBalanceCard(
-            title: 'Reward Points',
-            value: '${_formatNumber(user.rewardPoints)}',
-            icon: Icons.card_giftcard,
-            color: ThemeConfig.textGold,
+        const SizedBox(height: 15),
+        // Nạp tiền button
+        SizedBox(
+          width: double.infinity,
+          height: 50,
+          child: ElevatedButton.icon(
+            onPressed: controller.navigateToDeposit,
+            icon: const Icon(Icons.account_balance_wallet, color: Colors.black),
+            label: const CustomText(
+              'Nạp tiền',
+              fontSize: 16,
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: ThemeConfig.textGold,
+              foregroundColor: Colors.black,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 5,
+            ),
           ),
         ),
       ],
@@ -368,6 +399,12 @@ class UserPage extends GetView<UserController> {
           title: 'Đơn hàng của tôi',
           subtitle: 'Xem các đơn hàng đã mua',
           onTap: controller.viewOrders,
+        ),
+        _buildMenuItem(
+          icon: Icons.card_giftcard,
+          title: 'Lịch sử đổi quà',
+          subtitle: 'Xem các quà đã đổi bằng điểm',
+          onTap: controller.viewRedeemHistory,
         ),
       ],
     );

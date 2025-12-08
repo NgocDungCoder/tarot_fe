@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../../../configs/styles/theme_config.dart';
 import '../../../models/tarot_card.dart';
 import '../../../widget/custom_text.dart';
+import '../../../widget/video_background.dart';
 import 'view_all_cards_controller.dart';
 
 /// Binding for View All Cards page
@@ -21,8 +22,9 @@ class ViewAllCardsPage extends GetView<ViewAllCardsController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
+    return VideoBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -72,7 +74,7 @@ class ViewAllCardsPage extends GetView<ViewAllCardsController> {
           },
         ),
       ),
-    );
+    ),);
   }
 
   /// Build card item widget
@@ -166,6 +168,7 @@ class ViewAllCardsPage extends GetView<ViewAllCardsController> {
           ),
         ),
       ),
+
     );
   }
 }

@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../configs/styles/theme_config.dart';
+import '../../../configs/routes/route.dart';
 import '../../../models/cart_item.dart';
+import '../../../models/order.dart';
 import '../../../widget/custom_snackbar.dart';
 import '../../../widget/custom_text.dart';
 import '../cart/cart_controller.dart';
+import '../order_history/order_history_controller.dart';
+import '../order_history/order_history_page.dart';
+import '../transaction_history/transaction_history_controller.dart';
+import '../transaction_history/transaction_history_page.dart';
+import '../user/user_controller.dart';
+import '../../../models/transaction.dart';
 
 class CheckoutConfirmationController extends GetxController {
   // Cart items từ CartController
@@ -396,11 +404,103 @@ class CheckoutConfirmationController extends GetxController {
 
     if (confirmed != true) return;
 
+    // Check if user has enough Magic Points
+    if (Get.isRegistered<UserController>()) {
+      final userController = Get.find<UserController>();
+      if (!userController.hasEnoughMagicPoints(totalAmount)) {
+        final shortage = totalAmount - (userController.user?.magicPoints ?? 0);
+        CustomSnackbar.warning(
+          title: 'Không đủ Magic Points',
+          message: 'Bạn cần nạp thêm ${shortage.toStringAsFixed(0)} MP để thanh toán đơn hàng này.',
+        );
+        // Navigate to deposit page
+        Get.toNamed(
+          Routes.payment.sp,
+          arguments: {
+            'requiredAmount': shortage,
+          },
+        );
+        return;
+      }
+    }
+
     _isProcessing.value = true;
 
     try {
       // Simulate API call
-      await Future.delayed(const Duration(seconds: 2));
+      await Future.delayed(const Duration(seconds: 1));
+
+      // Subtract Magic Points from user
+      if (Get.isRegistered<UserController>()) {
+        Get.find<UserController>().subtractMagicPoints(totalAmount);
+      }
+
+      // Create order
+      final orderId = 'ORD-${DateTime.now().millisecondsSinceEpoch}';
+      final order = Order(
+        id: orderId,
+        orderId: orderId,
+        items: cartItems,
+        totalAmount: totalAmount,
+        rewardPoints: rewardPoints,
+        voucher: _selectedVoucher.value,
+        shippingInfo: _shippingInfo,
+        status: 'pending',
+        createdAt: DateTime.now(),
+      );
+
+      // Save order to history
+      if (Get.isRegistered<OrderHistoryController>()) {
+        Get.find<OrderHistoryController>().addOrder(order);
+      } else {
+        // Initialize OrderHistoryController if not registered
+        OrderHistoryBinding().dependencies();
+        Get.find<OrderHistoryController>().addOrder(order);
+      }
+
+      // Save transactions to history
+      // Transaction 1: Chi tiêu Magic Points
+      final mpTransaction = Transaction(
+        id: 'tx-mp-${DateTime.now().millisecondsSinceEpoch}',
+        type: TransactionType.magicPointWithdraw,
+        amount: totalAmount,
+        description: 'Thanh toán đơn hàng $orderId',
+        createdAt: DateTime.now(),
+        metadata: {'orderId': orderId},
+      );
+
+      // Transaction 2: Nhận Reward Points
+      final rpTransaction = Transaction(
+        id: 'tx-rp-${DateTime.now().millisecondsSinceEpoch}',
+        type: TransactionType.rewardPointEarn,
+        amount: rewardPoints,
+        description: 'Nhận điểm thưởng từ đơn hàng $orderId',
+        createdAt: DateTime.now(),
+        metadata: {'orderId': orderId},
+      );
+
+      if (Get.isRegistered<TransactionHistoryController>()) {
+        Get.find<TransactionHistoryController>().addTransaction(mpTransaction);
+        Get.find<TransactionHistoryController>().addTransaction(rpTransaction);
+      } else {
+        // Initialize TransactionHistoryController if not registered
+        TransactionHistoryBinding().dependencies();
+        Get.find<TransactionHistoryController>().addTransaction(mpTransaction);
+        Get.find<TransactionHistoryController>().addTransaction(rpTransaction);
+      }
+
+      // Add Reward Points to user
+      if (Get.isRegistered<UserController>()) {
+        final userController = Get.find<UserController>();
+        final currentUser = userController.user;
+        if (currentUser != null) {
+          userController.updateUser(
+            currentUser.copyWith(
+              rewardPoints: currentUser.rewardPoints + rewardPoints.toInt(),
+            ),
+          );
+        }
+      }
 
       // Clear cart
       if (Get.isRegistered<CartController>()) {
@@ -409,9 +509,9 @@ class CheckoutConfirmationController extends GetxController {
 
       // Navigate to payment success page
       Get.offNamed(
-        '/payment-success',
+        Routes.paymentSuccess.sp,
         arguments: {
-          'orderId': 'ORD-${DateTime.now().millisecondsSinceEpoch}',
+          'orderId': orderId,
           'totalAmount': totalAmount,
           'rewardPoints': rewardPoints,
           'voucher': _selectedVoucher.value,

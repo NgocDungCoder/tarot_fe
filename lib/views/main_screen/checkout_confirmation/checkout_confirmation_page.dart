@@ -3,12 +3,14 @@ import 'package:get/get.dart';
 import '../../../configs/styles/theme_config.dart';
 import '../../../models/cart_item.dart';
 import '../../../widget/custom_text.dart';
+import '../../../widget/video_background.dart';
 import 'checkout_confirmation_controller.dart';
 
 class CheckoutConfirmationBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<CheckoutConfirmationController>(() => CheckoutConfirmationController());
+    Get.lazyPut<CheckoutConfirmationController>(() =>
+        CheckoutConfirmationController());
   }
 }
 
@@ -17,72 +19,73 @@ class CheckoutConfirmationPage extends GetView<CheckoutConfirmationController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      appBar: AppBar(
+    return VideoBackground(
+      child: Scaffold(
         backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          onPressed: () => Get.back(),
-          icon: const Icon(
-            Icons.arrow_back,
-            color: ThemeConfig.textGold,
-            size: 28,
-          ),
-        ),
-        title: const CustomText(
-          'Xác nhận thanh toán',
-          fontSize: 24,
-          color: ThemeConfig.textGold,
-          fontWeight: FontWeight.bold,
-        ),
-        centerTitle: true,
-      ),
-      body: Obx(() {
-        if (controller.isLoading) {
-          return const Center(
-            child: CircularProgressIndicator(
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            onPressed: () => Get.back(),
+            icon: const Icon(
+              Icons.arrow_back,
               color: ThemeConfig.textGold,
+              size: 28,
+            ),
+          ),
+          title: const CustomText(
+            'Xác nhận thanh toán',
+            fontSize: 24,
+            color: ThemeConfig.textGold,
+            fontWeight: FontWeight.bold,
+          ),
+          centerTitle: true,
+        ),
+        body: Obx(() {
+          if (controller.isLoading) {
+            return const Center(
+              child: CircularProgressIndicator(
+                color: ThemeConfig.textGold,
+              ),
+            );
+          }
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 10),
+
+                // Danh sách sản phẩm sẽ mua
+                _buildProductsSection(),
+
+                const SizedBox(height: 30),
+
+                // Chọn voucher
+                _buildVoucherSection(),
+
+                const SizedBox(height: 30),
+
+                // Thông tin giao hàng
+                _buildShippingSection(),
+
+                const SizedBox(height: 30),
+
+                // Tóm tắt thanh toán
+                _buildSummarySection(),
+
+                const SizedBox(height: 30),
+
+                // Nút xác nhận thanh toán
+                _buildConfirmButton(),
+
+                const SizedBox(height: 20),
+              ],
             ),
           );
-        }
-
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 10),
-
-              // Danh sách sản phẩm sẽ mua
-              _buildProductsSection(),
-
-              const SizedBox(height: 30),
-
-              // Chọn voucher
-              _buildVoucherSection(),
-
-              const SizedBox(height: 30),
-
-              // Thông tin giao hàng
-              _buildShippingSection(),
-
-              const SizedBox(height: 30),
-
-              // Tóm tắt thanh toán
-              _buildSummarySection(),
-
-              const SizedBox(height: 30),
-
-              // Nút xác nhận thanh toán
-              _buildConfirmButton(),
-
-              const SizedBox(height: 20),
-            ],
-          ),
-        );
-      }),
-    );
+        }),
+      ),);
   }
 
   /// Build products section - danh sách sản phẩm sẽ mua
@@ -97,23 +100,25 @@ class CheckoutConfirmationPage extends GetView<CheckoutConfirmationController> {
           fontWeight: FontWeight.bold,
         ),
         const SizedBox(height: 15),
-        Obx(() {
-          if (controller.cartItems.isEmpty) {
-            return const Center(
-              child: CustomText(
-                'Không có sản phẩm',
-                fontSize: 16,
-                color: ThemeConfig.textWhite,
-              ),
-            );
-          }
+        Builder(
+          builder: (context) {
+            if (controller.cartItems.isEmpty) {
+              return const Center(
+                child: CustomText(
+                  'Không có sản phẩm',
+                  fontSize: 16,
+                  color: ThemeConfig.textWhite,
+                ),
+              );
+            }
 
-          return Column(
-            children: controller.cartItems.map((item) {
-              return _buildProductItem(item);
-            }).toList(),
-          );
-        }),
+            return Column(
+              children: controller.cartItems.map((item) {
+                return _buildProductItem(item);
+              }).toList(),
+            );
+          },
+        ),
       ],
     );
   }
@@ -426,24 +431,31 @@ class CheckoutConfirmationPage extends GetView<CheckoutConfirmationController> {
           ),
           const SizedBox(height: 20),
           Obx(() {
+            // Truy cập trực tiếp selectedVoucher để Obx theo dõi được
+            final selectedVoucher = controller.selectedVoucher;
+            final subtotal = controller.subtotal;
+            final voucherDiscount = controller.voucherDiscount;
+            final totalAmount = controller.totalAmount;
+            final rewardPoints = controller.rewardPoints;
+
             return Column(
               children: [
                 _buildSummaryRow(
                   label: 'Tổng tiền',
-                  value: '${controller.subtotal.toStringAsFixed(0)} MP',
+                  value: '${subtotal.toStringAsFixed(0)} MP',
                 ),
-                if (controller.voucherDiscount > 0) ...[
+                if (voucherDiscount > 0) ...[
                   const SizedBox(height: 8),
                   _buildSummaryRow(
                     label: 'Giảm giá voucher',
-                    value: '-${controller.voucherDiscount.toStringAsFixed(0)} MP',
+                    value: '-${voucherDiscount.toStringAsFixed(0)} MP',
                     isDiscount: true,
                   ),
                 ],
                 const SizedBox(height: 8),
                 _buildSummaryRow(
                   label: 'Điểm thưởng (10%)',
-                  value: '+${controller.rewardPoints.toStringAsFixed(0)} RP',
+                  value: '+${rewardPoints.toStringAsFixed(0)} RP',
                   isReward: true,
                 ),
                 const Divider(
@@ -453,7 +465,7 @@ class CheckoutConfirmationPage extends GetView<CheckoutConfirmationController> {
                 ),
                 _buildSummaryRow(
                   label: 'Tổng thanh toán',
-                  value: '${controller.totalAmount.toStringAsFixed(0)} MP',
+                  value: '${totalAmount.toStringAsFixed(0)} MP',
                   isTotal: true,
                 ),
               ],
@@ -487,8 +499,8 @@ class CheckoutConfirmationPage extends GetView<CheckoutConfirmationController> {
           color: isDiscount
               ? Colors.green
               : isReward
-                  ? ThemeConfig.textGold
-                  : ThemeConfig.textGold,
+              ? ThemeConfig.textGold
+              : ThemeConfig.textGold,
           fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
         ),
       ],
@@ -514,22 +526,23 @@ class CheckoutConfirmationPage extends GetView<CheckoutConfirmationController> {
           ),
           child: controller.isProcessing
               ? const SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
-                  ),
-                )
+            width: 24,
+            height: 24,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+            ),
+          )
               : const CustomText(
-                  'Xác nhận thanh toán',
-                  fontSize: 18,
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                ),
+            'Xác nhận thanh toán',
+            fontSize: 18,
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       );
     });
-  }
-}
+
+    }
+        }
 

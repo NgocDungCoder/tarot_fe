@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../configs/styles/theme_config.dart';
 import '../../../widget/custom_text.dart';
+import '../../../widget/video_background.dart';
 import '../cart/cart_controller.dart';
 import 'product_detail_controller.dart';
 
@@ -17,8 +18,9 @@ class ProductDetailPage extends GetView<ProductDetailController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
+    return VideoBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -68,7 +70,7 @@ class ProductDetailPage extends GetView<ProductDetailController> {
           ),
         ),
       ),
-    );
+    ),);
   }
 
   /// Build product image
@@ -232,6 +234,7 @@ class ProductDetailPage extends GetView<ProductDetailController> {
           ],
         ),
       ),
+
     );
   }
 }
