@@ -9,7 +9,7 @@ import 'product_detail_controller.dart';
 class ProductDetailBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<ProductDetailController>(() => ProductDetailController());
+    Get.lazyPut<ProductDetailController>(() => ProductDetailController(Get.find()));
   }
 }
 
@@ -44,7 +44,7 @@ class ProductDetailPage extends GetView<ProductDetailController> {
             children: [
               // Product image
               _buildProductImage(),
-              
+
               const SizedBox(height: 24),
               
               // Product name
@@ -95,7 +95,7 @@ class ProductDetailPage extends GetView<ProductDetailController> {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(18),
         child: Image.asset(
-          controller.product.imagePath,
+          controller.product.thumbnail ?? "",
           fit: BoxFit.cover,
           errorBuilder: (context, error, stackTrace) {
             return Container(
@@ -120,14 +120,14 @@ class ProductDetailPage extends GetView<ProductDetailController> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         CustomText(
-          controller.product.nameVi,
+          controller.product.name ?? "",
           fontSize: 28,
           color: ThemeConfig.textGold,
           fontWeight: FontWeight.bold,
         ),
         const SizedBox(height: 8),
         CustomText(
-          controller.product.name,
+          controller.product.name ?? "",
           fontSize: 18,
           color: ThemeConfig.textWhite.withOpacity(0.8),
         ),
@@ -163,7 +163,7 @@ class ProductDetailPage extends GetView<ProductDetailController> {
           ),
           const SizedBox(width: 12),
           CustomText(
-            '${controller.product.price.toStringAsFixed(0)} Magic Points',
+            '${controller.product.price} Magic Points',
             fontSize: 24,
             color: ThemeConfig.textGold,
             fontWeight: FontWeight.bold,
@@ -196,7 +196,7 @@ class ProductDetailPage extends GetView<ProductDetailController> {
           ),
           const SizedBox(height: 12),
           CustomText(
-            controller.product.description,
+            controller.product.description ?? "",
             fontSize: 16,
             color: ThemeConfig.textWhite,
           ),

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:tarot_fe/models/banner_entity.dart';
+import 'package:tarot_fe/models/cart_item_entity.dart';
+import 'package:tarot_fe/models/product_entity.dart';
 import '../../../configs/styles/theme_config.dart';
 import '../../../configs/routes/route.dart';
-import '../../../models/product.dart';
 import '../../../widget/custom_text.dart';
 import '../../../widget/video_background.dart';
 import '../cart/cart_controller.dart';
@@ -11,7 +13,7 @@ import 'shop_controller.dart';
 class ShopBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<ShopController>(() => ShopController());
+    Get.lazyPut<ShopController>(() => ShopController(Get.find()));
   }
 }
 
@@ -23,107 +25,110 @@ class ShopPage extends GetView<ShopController> {
     return VideoBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
-      body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            // Banner
-            SliverToBoxAdapter(
-              child: _buildBanner(),
-            ),
-
-            // Sticky Action buttons
-            SliverPersistentHeader(
-              pinned: true,
-              delegate: _StickyActionButtonsDelegate(
-                child: _buildActionButtons(),
+        body: SafeArea(
+          child: CustomScrollView(
+            slivers: [
+              // Banner
+              SliverToBoxAdapter(
+                child: _buildBanner(),
               ),
-            ),
 
-            // Products section title
-            SliverToBoxAdapter(
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                child: Row(
-                  children: [
-                    CustomText(
+              // Sticky Action buttons
+              SliverPersistentHeader(
+                pinned: true,
+                delegate: _StickyActionButtonsDelegate(
+                  child: _buildActionButtons(),
+                ),
+              ),
+
+              // Products section title
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding:
+                  EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  child: InkWell(
+                    onTap: () => controller.fetchBanners(),
+                    child: CustomText(
                       'Products',
                       fontSize: 24,
                       color: ThemeConfig.textGold,
                       fontWeight: FontWeight.bold,
                     ),
-                  ],
+                  ),
                 ),
               ),
-            ),
 
-            // Products grid
-            _buildProductsGrid(),
-          ],
-        ),
-      ),
-      ),);
-  }
-
-  /// Build banner slider
-  Widget _buildBanner() {
-    return Container(
-      width: double.infinity,
-      height: 200,
-      margin: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.5),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-            spreadRadius: 2,
+              // Products grid
+              _buildProductsGrid(),
+            ],
           ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            // PageView for banner slider
-            PageView.builder(
-              controller: controller.bannerPageController,
-              onPageChanged: controller.updateBannerIndex,
-              itemCount: controller.bannerImages.length,
-              itemBuilder: (context, index) {
-                return _buildBannerItem(controller.bannerImages[index]);
-              },
-            ),
-            // Indicator dots
-            Positioned(
-              bottom: 10,
-              left: 0,
-              right: 0,
-              child: Obx(() => Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(
-                      controller.bannerImages.length,
-                      (index) => _buildIndicatorDot(
-                        index == controller.currentBannerIndex,
-                      ),
-                    ),
-                  )),
-            ),
-          ],
         ),
       ),
     );
   }
 
+  /// Build banner slider
+  Widget _buildBanner() {
+    return Obx(() {
+      return Container(
+        width: double.infinity,
+        height: 200,
+        margin: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.5),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+              spreadRadius: 2,
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              // PageView for banner slider
+              PageView.builder(
+                controller: controller.bannerPageController,
+                onPageChanged: controller.updateBannerIndex,
+                itemCount: controller.banners.length,
+                itemBuilder: (context, index) {
+                  return _buildBannerItem(controller.banners[index]);
+                },
+              ),
+              // Indicator dots
+              Positioned(
+                bottom: 10,
+                left: 0,
+                right: 0,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(
+                    controller.banners.length,
+                        (index) =>
+                        _buildIndicatorDot(
+                          index == controller.currentBannerIndex,
+                        ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    });
+  }
+
   /// Build individual banner item
-  Widget _buildBannerItem(String imagePath) {
+  Widget _buildBannerItem(BannerEntity banner) {
     return Stack(
       fit: StackFit.expand,
       children: [
-        Image.asset(
-          imagePath,
+        Image.network(
+          banner.image ?? "",
           fit: BoxFit.cover,
           errorBuilder: (context, error, stackTrace) {
             return Container(
@@ -189,26 +194,20 @@ class ShopPage extends GetView<ShopController> {
         children: [
           Expanded(
             child: Obx(() {
-              // Lấy CartController để hiển thị số lượng items
-              final cartController = Get.isRegistered<CartController>()
-                  ? Get.find<CartController>()
-                  : null;
-              final itemCount = cartController?.totalItems ?? 0;
-
               return Stack(
                 clipBehavior: Clip.none,
                 children: [
                   _buildActionButton(
                     label: 'Cart',
                     icon: "assets/icons/shopping-cart.png",
-                    onTap: controller.goToCart,
+                    onTap: () => Get.toNamed(Routes.cart.p),
                     gradient: [
                       ThemeConfig.deepPurple,
                       ThemeConfig.primaryColor,
                     ],
                   ),
                   // Badge hiển thị số lượng items
-                  if (itemCount > 0)
+                  if (controller.totalItem.value > 0)
                     Positioned(
                       right: 8,
                       top: 8,
@@ -224,7 +223,9 @@ class ShopPage extends GetView<ShopController> {
                         ),
                         child: Center(
                           child: Text(
-                            itemCount > 99 ? '99+' : '$itemCount',
+                            controller.totalItem.value > 99
+                                ? '99+'
+                                : '${controller.totalItem.value}',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 10,
@@ -243,7 +244,7 @@ class ShopPage extends GetView<ShopController> {
             child: _buildActionButton(
               label: 'Redeem Gift',
               icon: "assets/icons/gift.png",
-              onTap: controller.goToRedeemGift,
+              onTap: () => Get.toNamed(Routes.redeemGift.p),
               gradient: [
                 ThemeConfig.deepPurple,
                 ThemeConfig.primaryColor,
@@ -335,7 +336,7 @@ class ShopPage extends GetView<ShopController> {
             mainAxisSpacing: 16,
           ),
           delegate: SliverChildBuilderDelegate(
-            (context, index) {
+                (context, index) {
               return _buildProductCard(controller.products[index]);
             },
             childCount: controller.products.length,
@@ -346,10 +347,9 @@ class ShopPage extends GetView<ShopController> {
   }
 
   /// Build individual product card
-  Widget _buildProductCard(Product product) {
+  Widget _buildProductCard(ProductEntity product) {
     return GestureDetector(
       onTap: () {
-        // Navigate to product detail page
         Get.toNamed(
           Routes.productDetail.sp,
           arguments: product,
@@ -400,8 +400,8 @@ class ShopPage extends GetView<ShopController> {
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      Image.asset(
-                        product.imagePath,
+                      Image.network(
+                        product.thumbnail ?? "",
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) {
                           return Container(
@@ -446,7 +446,7 @@ class ShopPage extends GetView<ShopController> {
                   children: [
                     // Product name
                     CustomText(
-                      product.nameVi,
+                      product.name ?? "",
                       fontSize: 14,
                       color: ThemeConfig.textGold,
                       fontWeight: FontWeight.bold,
@@ -459,7 +459,7 @@ class ShopPage extends GetView<ShopController> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         CustomText(
-                          '${product.price.toStringAsFixed(0)} MP',
+                          '${product.price} MP',
                           fontSize: 16,
                           color: ThemeConfig.textGoldLight,
                           fontWeight: FontWeight.bold,
@@ -478,8 +478,12 @@ class ShopPage extends GetView<ShopController> {
                                 width: 1,
                               ),
                             ),
-                            child: Image.asset("assets/icons/add-to-cart.png", height: 18, width: 18, fit: BoxFit.contain,),
-
+                            child: Image.asset(
+                              "assets/icons/add-to-cart.png",
+                              height: 18,
+                              width: 18,
+                              fit: BoxFit.contain,
+                            ),
                           ),
                         ),
                       ],
@@ -490,7 +494,8 @@ class ShopPage extends GetView<ShopController> {
             ),
           ],
         ),
-      ),);
+      ),
+    );
   }
 }
 
@@ -507,8 +512,8 @@ class _StickyActionButtonsDelegate extends SliverPersistentHeaderDelegate {
   double get maxExtent => 86.0;
 
   @override
-  Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(BuildContext context, double shrinkOffset,
+      bool overlapsContent) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.black.withOpacity(0.9),

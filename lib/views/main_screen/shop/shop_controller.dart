@@ -1,22 +1,31 @@
 import 'dart:async';
+import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../models/product.dart';
+import 'package:tarot_fe/models/banner_entity.dart';
+import 'package:tarot_fe/models/product_entity.dart';
+import 'package:tarot_fe/providers/api_client.dart';
 import '../../../widget/custom_snackbar.dart';
 import '../cart/cart_controller.dart';
 import '../cart/cart_page.dart';
 
 class ShopController extends GetxController {
-  // Dummy products data
-  final _products = <Product>[].obs;
-  List<Product> get products => _products;
+  final ApiClient apiClient;
+  final isLoading = false.obs;
+  final RxList<ProductEntity> products = <ProductEntity>[].obs;
+  final RxList<BannerEntity> banners = <BannerEntity>[].obs;
 
-  // Banner images
-  final List<String> bannerImages = [
-    'assets/images/banner.jpg',
-    'assets/images/banner2.jpg',
-    'assets/images/banner3.jpg',
-  ];
+  final errorMessage = "".obs;
+  final cartController = Get.find<CartController>();
+  final totalItem = 0.obs;
+
+  ShopController(this.apiClient) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await fetchBanners();
+      await fetchProducts();
+      totalItem.value = cartController.totalItems;
+    });
+  }
 
   // PageController cho banner slider
   late PageController bannerPageController;
@@ -31,7 +40,6 @@ class ShopController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _loadProducts();
     _initBannerSlider();
   }
 
@@ -46,7 +54,7 @@ class ShopController extends GetxController {
     _bannerTimer?.cancel();
     _bannerTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
       if (bannerPageController.hasClients) {
-        final nextIndex = (_currentBannerIndex.value + 1) % bannerImages.length;
+        final nextIndex = (_currentBannerIndex.value + 1) % banners.length;
         bannerPageController.animateToPage(
           nextIndex,
           duration: const Duration(milliseconds: 500),
@@ -65,92 +73,90 @@ class ShopController extends GetxController {
   /// Update current banner index
   void updateBannerIndex(int index) {
     _currentBannerIndex.value = index;
-    // Restart timer khi user swipe manually
     _startBannerTimer();
   }
 
-  /// Load dummy products
-  void _loadProducts() {
-    _products.value = [
-      Product(
-        id: '1',
-        name: 'Tarot Card Deck',
-        nameVi: 'Bộ Bài Tarot',
-        description: 'Complete tarot card deck with guidebook',
-        price: 29.99,
-        imagePath: 'assets/images/blog1.jpg',
-        category: 'Decks',
-      ),
-      Product(
-        id: '2',
-        name: 'Crystal Ball Set',
-        nameVi: 'Bộ Cầu Pha Lê',
-        description: 'Premium crystal ball for divination',
-        price: 49.99,
-        imagePath: 'assets/images/blog2.jpg',
-        category: 'Tools',
-      ),
-      Product(
-        id: '3',
-        name: 'Tarot Reading Cloth',
-        nameVi: 'Khăn Trải Tarot',
-        description: 'Beautiful silk cloth for tarot readings',
-        price: 19.99,
-        imagePath: 'assets/images/blog3.jpg',
-        category: 'Accessories',
-      ),
-      Product(
-        id: '4',
-        name: 'Oracle Cards',
-        nameVi: 'Bài Oracle',
-        description: 'Mystical oracle card deck',
-        price: 24.99,
-        imagePath: 'assets/images/blog4.jpg',
-        category: 'Decks',
-      ),
-      Product(
-        id: '5',
-        name: 'Sage Bundle',
-        nameVi: 'Bó Cỏ Xô Thơm',
-        description: 'Purifying sage bundle for cleansing',
-        price: 12.99,
-        imagePath: 'assets/images/blog5.jpg',
-        category: 'Tools',
-      ),
-      Product(
-        id: '6',
-        name: 'Tarot Guide Book',
-        nameVi: 'Sách Hướng Dẫn Tarot',
-        description: 'Complete guide to tarot reading',
-        price: 15.99,
-        imagePath: 'assets/images/blog6.jpg',
-        category: 'Books',
-      ),
-    ];
+  Future<void> fetchBanners () async {
+    developer.log(
+      'Fetching banner',
+      name: 'ShopController',
+    );
+
+    try {
+      isLoading.value = true;
+      errorMessage.value = '';
+
+      final response = await apiClient.getBanners();
+
+      if(response.success) {
+        banners.value = response.data ?? [];
+      } else {
+        CustomSnackbar.error(
+          title: 'Thất bại',
+          message: 'Lấy danh sách banner thất bại',
+          duration: const Duration(seconds: 2),
+        );
+      }
+
+      developer.log(
+        'Fetch banners success',
+        name: 'ShopController',
+      );
+    } catch (e, stackTrace) {
+      errorMessage.value = 'Không thể tải list banner';
+
+      developer.log(
+        'Fetch banners failed',
+        name: 'Shop Controller',
+        error: e,
+        stackTrace: stackTrace,
+      );
+    } finally {
+      isLoading.value = false;
+    }
   }
 
-  /// Navigate to cart page
-  void goToCart() {
-    // Đảm bảo CartController đã được khởi tạo
-    if (!Get.isRegistered<CartController>()) {
-      CartBinding().dependencies();
+  Future<void> fetchProducts () async {
+    developer.log(
+      'Fetching products',
+      name: 'ShopController',
+    );
+
+    try {
+      isLoading.value = true;
+      errorMessage.value = '';
+
+      final response = await apiClient.getProducts();
+
+      if (response == null) {
+        throw Exception('Product detail response is null');
+      }
+
+      products.value = response.docs ?? [];
+
+      developer.log(
+        'Fetch products success',
+        name: 'ShopController',
+      );
+    } catch (e, stackTrace) {
+      errorMessage.value = 'Không thể tải list sản phẩm';
+
+      developer.log(
+        'Fetch products failed',
+        name: 'Shop Controller',
+        error: e,
+        stackTrace: stackTrace,
+      );
+    } finally {
+      isLoading.value = false;
     }
-    Get.toNamed('/cart');
   }
+
+
 
   /// Add product to cart
-  void addToCart(Product product) {
-    // Đảm bảo CartController đã được khởi tạo
-    if (!Get.isRegistered<CartController>()) {
-      CartBinding().dependencies();
-    }
-    final cartController = Get.find<CartController>();
+  void addToCart(ProductEntity product) {
     cartController.addToCart(product);
-  }
-
-  /// Navigate to redeem gift
-  void goToRedeemGift() {
-    Get.toNamed('/redeem-gift');
   }
 
   @override

@@ -14,7 +14,7 @@ class SplashController extends GetxController {
 
   /// Start timer 5 seconds to navigate to home
   void _startTimer() {
-    _timer = Timer(const Duration(seconds: 5), () {
+    _timer = Timer(const Duration(milliseconds: 500), () {
       // Navigate to home page
       Get.offAllNamed(Routes.main.p);
     });

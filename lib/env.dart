@@ -7,15 +7,25 @@ class Env {
     print('APP_NAME: $appName');
     print('FLAVOR: $flavor');
     print('API_URL: $apiUrl');
+    print('DISCOVER_URL: $discoverUrl');
+    print('SOCKET_URL: $socketUrl');
+
+    // if (kIsWeb) {
+    //   final isBranchIoTestMode =
+    //       const bool.fromEnvironment('BRANCH_IO_TEST_MODE');
+    //   js.context["BRANCH_IO_KEY"] = isBranchIoTestMode
+    //       ? const String.fromEnvironment("BRANCH_IO_TEST_KEY")
+    //       : const String.fromEnvironment("BRANCH_IO_KEY");
+    //   // etc..
+    //   //Custom DOM event to signal to js the execution of the dart code
+    //   html.document.dispatchEvent(html.CustomEvent("dart_loaded"));
+    // }
   }
 
   // factory constructor
   factory Env() => _env;
 
-  final bundleId = const String.fromEnvironment(
-    'BUNDLE_ID',
-    defaultValue: '',
-  );
+  final mapboxAPI = 'pk.eyJ1IjoidGFuZGF0azAwNSIsImEiOiJjbWMwY2JhM3EwMHJhMmpzN3Jvb2s5aHplIn0.oSJq8mHU_Y6gApzy658I2g';
 
   final deepLinkHost = const String.fromEnvironment(
     'DEEP_LINK_HOST',
@@ -27,11 +37,6 @@ class Env {
     defaultValue: '',
   );
 
-  final sentryDSN = const String.fromEnvironment(
-    'SENTRY_DSN',
-    defaultValue: '',
-  );
-
   final providerFirebase = const String.fromEnvironment(
     'PROVIDER_FIREBASE',
     defaultValue: 'PROVIDER_FIREBASE',
@@ -39,7 +44,7 @@ class Env {
 
   final providerApn = const String.fromEnvironment(
     'PROVIDER_APN',
-    defaultValue: 'PROVIDER_FIREBASE',
+    defaultValue: 'PROVIDER_APN',
   );
 
   final appName = const String.fromEnvironment(
@@ -54,7 +59,7 @@ class Env {
 
   final _apiUrl = const String.fromEnvironment(
     'API_URL',
-    defaultValue: 'http://192.168.1.192:3000', // Default localhost MongoDB API
+    defaultValue: '',
   );
   String get apiUrl => _apiUrl;
 
@@ -63,6 +68,18 @@ class Env {
     defaultValue: '',
   );
   String get socketUrl => _socketUrl;
+
+  final _discoverUrl = const String.fromEnvironment(
+    'DISCOVER_URL',
+    defaultValue: '',
+  );
+  String get discoverUrl => _discoverUrl;
+
+  final _sentryDSN = const String.fromEnvironment(
+    'SENTRY_DSN',
+    defaultValue: '',
+  );
+  String get sentryDSN => _sentryDSN;
 
   final _isMaintaining = false;
   bool get isMaintaining => _isMaintaining;

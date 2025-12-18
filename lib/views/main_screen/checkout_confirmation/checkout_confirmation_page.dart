@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../configs/styles/theme_config.dart';
-import '../../../models/cart_item.dart';
 import '../../../widget/custom_text.dart';
 import '../../../widget/video_background.dart';
 import 'checkout_confirmation_controller.dart';
@@ -102,20 +101,20 @@ class CheckoutConfirmationPage extends GetView<CheckoutConfirmationController> {
         const SizedBox(height: 15),
         Builder(
           builder: (context) {
-            if (controller.cartItems.isEmpty) {
-              return const Center(
-                child: CustomText(
-                  'Không có sản phẩm',
-                  fontSize: 16,
-                  color: ThemeConfig.textWhite,
-                ),
-              );
-            }
+            // if (controller.cartItems.isEmpty) {
+            //   return const Center(
+            //     child: CustomText(
+            //       'Không có sản phẩm',
+            //       fontSize: 16,
+            //       color: ThemeConfig.textWhite,
+            //     ),
+            //   );
+            // }
 
             return Column(
-              children: controller.cartItems.map((item) {
-                return _buildProductItem(item);
-              }).toList(),
+              // children: controller.cartItems.map((item) {
+              //   return _buildProductItem(item);
+              // }).toList(),
             );
           },
         ),
@@ -124,93 +123,93 @@ class CheckoutConfirmationPage extends GetView<CheckoutConfirmationController> {
   }
 
   /// Build product item card
-  Widget _buildProductItem(CartItem item) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.6),
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(
-          color: ThemeConfig.textGold.withOpacity(0.3),
-          width: 1,
-        ),
-      ),
-      child: Row(
-        children: [
-          // Product image
-          Container(
-            width: 70,
-            height: 70,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                color: ThemeConfig.textGold.withOpacity(0.3),
-                width: 1,
-              ),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(9),
-              child: Image.asset(
-                item.product.imagePath,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    color: ThemeConfig.deepPurple.withOpacity(0.5),
-                    child: const Icon(
-                      Icons.image_not_supported,
-                      color: ThemeConfig.textGold,
-                      size: 30,
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-
-          const SizedBox(width: 16),
-
-          // Product info
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CustomText(
-                  item.product.nameVi,
-                  fontSize: 16,
-                  color: ThemeConfig.textWhite,
-                  fontWeight: FontWeight.bold,
-                ),
-                const SizedBox(height: 4),
-                CustomText(
-                  item.product.name,
-                  fontSize: 12,
-                  color: ThemeConfig.textWhite.withOpacity(0.7),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    CustomText(
-                      'Số lượng: ${item.quantity}',
-                      fontSize: 14,
-                      color: ThemeConfig.textWhite.withOpacity(0.8),
-                    ),
-                    CustomText(
-                      '${item.totalPrice.toStringAsFixed(0)} MP',
-                      fontSize: 16,
-                      color: ThemeConfig.textGold,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget _buildProductItem(CartItem item) {
+  //   return Container(
+  //     margin: const EdgeInsets.only(bottom: 12),
+  //     padding: const EdgeInsets.all(16),
+  //     decoration: BoxDecoration(
+  //       color: Colors.black.withOpacity(0.6),
+  //       borderRadius: BorderRadius.circular(15),
+  //       border: Border.all(
+  //         color: ThemeConfig.textGold.withOpacity(0.3),
+  //         width: 1,
+  //       ),
+  //     ),
+  //     child: Row(
+  //       children: [
+  //         // Product image
+  //         Container(
+  //           width: 70,
+  //           height: 70,
+  //           decoration: BoxDecoration(
+  //             borderRadius: BorderRadius.circular(10),
+  //             border: Border.all(
+  //               color: ThemeConfig.textGold.withOpacity(0.3),
+  //               width: 1,
+  //             ),
+  //           ),
+  //           child: ClipRRect(
+  //             borderRadius: BorderRadius.circular(9),
+  //             child: Image.asset(
+  //               item.product.imagePath,
+  //               fit: BoxFit.cover,
+  //               errorBuilder: (context, error, stackTrace) {
+  //                 return Container(
+  //                   color: ThemeConfig.deepPurple.withOpacity(0.5),
+  //                   child: const Icon(
+  //                     Icons.image_not_supported,
+  //                     color: ThemeConfig.textGold,
+  //                     size: 30,
+  //                   ),
+  //                 );
+  //               },
+  //             ),
+  //           ),
+  //         ),
+  //
+  //         const SizedBox(width: 16),
+  //
+  //         // Product info
+  //         Expanded(
+  //           child: Column(
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: [
+  //               CustomText(
+  //                 item.product.nameVi,
+  //                 fontSize: 16,
+  //                 color: ThemeConfig.textWhite,
+  //                 fontWeight: FontWeight.bold,
+  //               ),
+  //               const SizedBox(height: 4),
+  //               CustomText(
+  //                 item.product.name,
+  //                 fontSize: 12,
+  //                 color: ThemeConfig.textWhite.withOpacity(0.7),
+  //               ),
+  //               const SizedBox(height: 8),
+  //               Row(
+  //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                 children: [
+  //                   CustomText(
+  //                     'Số lượng: ${item.quantity}',
+  //                     fontSize: 14,
+  //                     color: ThemeConfig.textWhite.withOpacity(0.8),
+  //                   ),
+  //                   CustomText(
+  //                     '${item.totalPrice.toStringAsFixed(0)} MP',
+  //                     fontSize: 16,
+  //                     color: ThemeConfig.textGold,
+  //                     fontWeight: FontWeight.bold,
+  //                   ),
+  //                 ],
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   /// Build voucher section - chọn voucher
   Widget _buildVoucherSection() {

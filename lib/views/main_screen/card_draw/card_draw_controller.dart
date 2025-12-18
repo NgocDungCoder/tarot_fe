@@ -204,22 +204,22 @@ class CardDrawController extends GetxController {
 
   /// Load số lượt rút còn lại từ storage
   void _loadDrawCount() {
-    final count = _storage.read<int>(_drawCountKey) ?? _maxDraws;
-    _remainingDraws.value = count;
+    // final count = _storage.read<int>(_drawCountKey) ?? _maxDraws;
+    // _remainingDraws.value = count;
   }
 
   /// Save số lượt rút còn lại vào storage
   void _saveDrawCount() {
-    _storage.write(_drawCountKey, _remainingDraws.value);
+    // _storage.write(_drawCountKey, _remainingDraws.value);
   }
 
   /// Load lịch sử rút bài từ storage
   void _loadDrawHistory() {
     try {
-      final historyJson = _storage.read<List<dynamic>>(_drawHistoryKey) ?? [];
-      _drawHistory.value = historyJson
-          .map((json) => CardDrawHistory.fromJson(json as Map<String, dynamic>))
-          .toList();
+      // final historyJson = _storage.read<List<dynamic>>(_drawHistoryKey) ?? [];
+      // _drawHistory.value = historyJson
+      //     .map((json) => CardDrawHistory.fromJson(json as Map<String, dynamic>))
+      //     .toList();
     } catch (e) {
       _drawHistory.value = [];
     }
@@ -229,7 +229,7 @@ class CardDrawController extends GetxController {
   void _saveDrawHistory() {
     try {
       final historyJson = _drawHistory.map((h) => h.toJson()).toList();
-      _storage.write(_drawHistoryKey, historyJson);
+      // _storage.write(_drawHistoryKey, historyJson);
     } catch (e) {
       print('Error saving draw history: $e');
     }

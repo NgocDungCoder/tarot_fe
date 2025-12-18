@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:tarot_fe/models/cart_item_entity.dart';
+import 'package:tarot_fe/models/product_entity.dart';
 import '../../../configs/styles/theme_config.dart';
 import '../../../widget/custom_text.dart';
 import '../../../widget/video_background.dart';
@@ -8,7 +10,7 @@ import 'cart_controller.dart';
 class CartBinding extends Bindings {
   @override
   void dependencies() {
-    Get.put<CartController>(CartController(), permanent: true);
+    Get.put<CartController>(CartController(Get.find()), permanent: true);
   }
 }
 
@@ -27,11 +29,14 @@ class CartPage extends GetView<CartController> {
           icon: const Icon(Icons.arrow_back, color: ThemeConfig.textGold),
           onPressed: () => Get.back(),
         ),
-        title: const CustomText(
-          'Cart',
-          fontSize: 24,
-          color: ThemeConfig.textGold,
-          fontWeight: FontWeight.bold,
+        title: InkWell(
+          onTap: () => controller.fetchCartOfUser(),
+          child: const CustomText(
+            'Cart',
+            fontSize: 24,
+            color: ThemeConfig.textGold,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         centerTitle: true,
       ),
@@ -90,7 +95,8 @@ class CartPage extends GetView<CartController> {
   }
 
   /// Build cart item card
-  Widget _buildCartItem(item) {
+  Widget _buildCartItem(CartItemEntity cartItem) {
+    final item = cartItem.productEntity;
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
@@ -125,8 +131,8 @@ class CartPage extends GetView<CartController> {
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(9),
-              child: Image.asset(
-                item.product.imagePath,
+              child: Image.network(
+                item?.thumbnail ?? "",
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
@@ -151,14 +157,14 @@ class CartPage extends GetView<CartController> {
               children: [
                 // Product name
                 CustomText(
-                  item.product.nameVi,
+                  item?.name ?? "",
                   fontSize: 16,
                   color: ThemeConfig.textWhite,
                   fontWeight: FontWeight.bold,
                 ),
                 const SizedBox(height: 4),
                 CustomText(
-                  item.product.name,
+                  item?.name ?? "",
                   fontSize: 12,
                   color: ThemeConfig.textWhite.withOpacity(0.7),
                 ),
@@ -166,7 +172,7 @@ class CartPage extends GetView<CartController> {
 
                 // Price
                 CustomText(
-                  '${item.product.price.toStringAsFixed(0)} MP',
+                  '${item?.price} MP',
                   fontSize: 16,
                   color: ThemeConfig.textGold,
                   fontWeight: FontWeight.bold,
@@ -178,7 +184,7 @@ class CartPage extends GetView<CartController> {
                   children: [
                     // Decrease button
                     GestureDetector(
-                      onTap: () => controller.decreaseQuantity(item.product.id),
+                      onTap: () => controller.decreaseQuantity(item?.id ?? ""),
                       child: Container(
                         width: 32,
                         height: 32,
@@ -204,7 +210,7 @@ class CartPage extends GetView<CartController> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: CustomText(
-                        '${item.quantity}',
+                        '${cartItem.quantity}',
                         fontSize: 18,
                         color: ThemeConfig.textWhite,
                         fontWeight: FontWeight.bold,
@@ -215,7 +221,7 @@ class CartPage extends GetView<CartController> {
 
                     // Increase button
                     GestureDetector(
-                      onTap: () => controller.increaseQuantity(item.product.id),
+                      onTap: () => controller.increaseQuantity(item?.id ?? ""),
                       child: Container(
                         width: 32,
                         height: 32,
@@ -239,7 +245,7 @@ class CartPage extends GetView<CartController> {
 
                     // Remove button
                     GestureDetector(
-                      onTap: () => controller.removeFromCart(item.product.id),
+                      onTap: () => controller.removeFromCart(item?.id ?? ""),
                       child: Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(

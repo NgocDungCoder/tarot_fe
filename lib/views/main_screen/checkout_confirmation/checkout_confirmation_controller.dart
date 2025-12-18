@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../configs/styles/theme_config.dart';
 import '../../../configs/routes/route.dart';
-import '../../../models/cart_item.dart';
-import '../../../models/order.dart';
 import '../../../widget/custom_snackbar.dart';
 import '../../../widget/custom_text.dart';
 import '../cart/cart_controller.dart';
@@ -16,12 +14,12 @@ import '../../../models/transaction.dart';
 
 class CheckoutConfirmationController extends GetxController {
   // Cart items từ CartController
-  List<CartItem> get cartItems {
-    if (Get.isRegistered<CartController>()) {
-      return Get.find<CartController>().cartItems;
-    }
-    return [];
-  }
+  // List<CartItem> get cartItems {
+  //   if (Get.isRegistered<CartController>()) {
+  //     return Get.find<CartController>().cartItems;
+  //   }
+  //   return [];
+  // }
 
   // Loading state
   final _isLoading = false.obs;
@@ -64,7 +62,8 @@ class CheckoutConfirmationController extends GetxController {
 
   /// Calculate subtotal (tổng tiền trước khi giảm giá)
   double get subtotal {
-    return cartItems.fold(0.0, (sum, item) => sum + item.totalPrice);
+    // return cartItems.fold(0.0, (sum, item) => sum + item.totalPrice);
+    return 0.0;
   }
 
   /// Calculate voucher discount (giảm giá từ voucher)
@@ -86,13 +85,14 @@ class CheckoutConfirmationController extends GetxController {
 
   /// Check if can confirm payment
   bool get canConfirm {
-    return cartItems.isNotEmpty &&
-        _shippingInfo['name'] != null &&
-        _shippingInfo['name']!.isNotEmpty &&
-        _shippingInfo['phone'] != null &&
-        _shippingInfo['phone']!.isNotEmpty &&
-        _shippingInfo['address'] != null &&
-        _shippingInfo['address']!.isNotEmpty;
+    // return cartItems.isNotEmpty &&
+    //     _shippingInfo['name'] != null &&
+    //     _shippingInfo['name']!.isNotEmpty &&
+    //     _shippingInfo['phone'] != null &&
+    //     _shippingInfo['phone']!.isNotEmpty &&
+    //     _shippingInfo['address'] != null &&
+    //     _shippingInfo['address']!.isNotEmpty;
+    return true;
   }
 
   /// Select voucher
@@ -437,26 +437,26 @@ class CheckoutConfirmationController extends GetxController {
 
       // Create order
       final orderId = 'ORD-${DateTime.now().millisecondsSinceEpoch}';
-      final order = Order(
-        id: orderId,
-        orderId: orderId,
-        items: cartItems,
-        totalAmount: totalAmount,
-        rewardPoints: rewardPoints,
-        voucher: _selectedVoucher.value,
-        shippingInfo: _shippingInfo,
-        status: 'pending',
-        createdAt: DateTime.now(),
-      );
+      // final order = Order(
+      //   id: orderId,
+      //   orderId: orderId,
+      //   items: cartItems,
+      //   totalAmount: totalAmount,
+      //   rewardPoints: rewardPoints,
+      //   voucher: _selectedVoucher.value,
+      //   shippingInfo: _shippingInfo,
+      //   status: 'pending',
+      //   createdAt: DateTime.now(),
+      // );
 
       // Save order to history
-      if (Get.isRegistered<OrderHistoryController>()) {
-        Get.find<OrderHistoryController>().addOrder(order);
-      } else {
-        // Initialize OrderHistoryController if not registered
-        OrderHistoryBinding().dependencies();
-        Get.find<OrderHistoryController>().addOrder(order);
-      }
+      // if (Get.isRegistered<OrderHistoryController>()) {
+      //   Get.find<OrderHistoryController>().addOrder(order);
+      // } else {
+      //   // Initialize OrderHistoryController if not registered
+      //   OrderHistoryBinding().dependencies();
+      //   Get.find<OrderHistoryController>().addOrder(order);
+      // }
 
       // Save transactions to history
       // Transaction 1: Chi tiêu Magic Points

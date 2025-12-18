@@ -9,6 +9,7 @@ android {
     namespace = "com.example.tarot_fe"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "25.1.8937393"
+    flavorDimensions "app"
 
     compileOptions {
         // Updated to Java 17 (LTS) to fix obsolete version warning
@@ -38,6 +39,15 @@ android {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.debug
+        }
+    }
+    productFlavors {
+        staging {
+            dimension "app"
+            applicationIdSuffix "stg"
+        }
+        production {
+            dimension "app"
         }
     }
 }

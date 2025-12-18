@@ -28,7 +28,7 @@ class MainBinding extends Bindings {
     
     // Khởi tạo CartController để có thể truy cập từ nhiều nơi
     if (!Get.isRegistered<CartController>()) {
-      Get.put<CartController>(CartController(), permanent: true);
+      Get.put<CartController>(CartController(Get.find()), permanent: true);
     }
   }
 }

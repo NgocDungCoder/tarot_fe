@@ -1,0 +1,15 @@
+{
+    "APP_NAME": "Remi App",
+    "BUNDLE_ID": "com.remiapp.stg",
+    "FLAVOR": "staging",
+    "WEB_APP_URL": "https://",
+    "API_URL": "https://api.remi-trade.com",
+    "DISCOVER_URL": "https://",
+    "DEEP_LINK_HOST": "deeplink.remiapps.xyz,
+    "DEEP_LINK_SCHEME": "example",
+    "DEEP_LINK_SCHEME_HOST": "",
+    "SOCKET_URL": "https://api.remi-trade.com",
+    "ONESIGNAL_APP_ID": "",
+    "PROVIDER_FIREBASE": "remiapp",
+    "GOOGLE_CLIENT_ID": "182942803683-bdtvbr92ffs3ieqviinhk0otep19juta.apps.googleusercontent.com"
+}

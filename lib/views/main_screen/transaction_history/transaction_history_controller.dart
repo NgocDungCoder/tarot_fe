@@ -34,17 +34,17 @@ class TransactionHistoryController extends GetxController {
 
     Future.delayed(const Duration(milliseconds: 300), () {
       try {
-        final transactionJson = _storage.read<List<dynamic>>(_transactionHistoryKey) ?? [];
-        final loadedTransactions = transactionJson
-            .map((json) => Transaction.fromJson(json as Map<String, dynamic>))
-            .toList();
-
-        // Nếu không có lịch sử trong storage, tạo dữ liệu mẫu
-        if (loadedTransactions.isEmpty) {
-          _transactions.assignAll(_createSampleTransactions());
-        } else {
-          _transactions.assignAll(loadedTransactions);
-        }
+        // final transactionJson = _storage.read<List<dynamic>>(_transactionHistoryKey) ?? [];
+        // final loadedTransactions = transactionJson
+        //     .map((json) => Transaction.fromJson(json as Map<String, dynamic>))
+        //     .toList();
+        //
+        // // Nếu không có lịch sử trong storage, tạo dữ liệu mẫu
+        // if (loadedTransactions.isEmpty) {
+        //   _transactions.assignAll(_createSampleTransactions());
+        // } else {
+        //   _transactions.assignAll(loadedTransactions);
+        // }
       } catch (e) {
         // Nếu có lỗi, dùng dữ liệu mẫu
         _transactions.assignAll(_createSampleTransactions());
@@ -211,7 +211,7 @@ class TransactionHistoryController extends GetxController {
   void _saveTransactions() {
     try {
       final transactionJson = _transactions.map((tx) => tx.toJson()).toList();
-      _storage.write(_transactionHistoryKey, transactionJson);
+      // _storage.write(_transactionHistoryKey, transactionJson);
     } catch (e) {
       print('Error saving transaction history: $e');
     }

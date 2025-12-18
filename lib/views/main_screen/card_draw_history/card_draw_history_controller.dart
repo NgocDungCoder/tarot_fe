@@ -34,17 +34,17 @@ class CardDrawHistoryController extends GetxController {
 
     Future.delayed(const Duration(milliseconds: 300), () {
       try {
-        final historyJson = _storage.read<List<dynamic>>(_drawHistoryKey) ?? [];
-        final loadedHistories = historyJson
-            .map((json) => CardDrawHistory.fromJson(json as Map<String, dynamic>))
-            .toList();
-
-        // Nếu không có lịch sử trong storage, tạo dữ liệu mẫu
-        if (loadedHistories.isEmpty) {
-          _histories.assignAll(_createSampleHistories());
-        } else {
-          _histories.assignAll(loadedHistories);
-        }
+        // final historyJson = _storage.read<List<dynamic>>(_drawHistoryKey) ?? [];
+        // final loadedHistories = historyJson
+        //     .map((json) => CardDrawHistory.fromJson(json as Map<String, dynamic>))
+        //     .toList();
+        //
+        // // Nếu không có lịch sử trong storage, tạo dữ liệu mẫu
+        // if (loadedHistories.isEmpty) {
+        //   _histories.assignAll(_createSampleHistories());
+        // } else {
+        //   _histories.assignAll(loadedHistories);
+        // }
       } catch (e) {
         // Nếu có lỗi, dùng dữ liệu mẫu
         _histories.assignAll(_createSampleHistories());
@@ -154,7 +154,7 @@ class CardDrawHistoryController extends GetxController {
   void _saveHistories() {
     try {
       final historyJson = _histories.map((h) => h.toJson()).toList();
-      _storage.write(_drawHistoryKey, historyJson);
+      // _storage.write(_drawHistoryKey, historyJson);
     } catch (e) {
       print('Error saving draw history: $e');
     }
@@ -163,7 +163,7 @@ class CardDrawHistoryController extends GetxController {
   /// Clear all histories
   void clearHistories() {
     _histories.clear();
-    _storage.write(_drawHistoryKey, []);
+    // _storage.write(_drawHistoryKey, []);
   }
 
   /// Delete a history

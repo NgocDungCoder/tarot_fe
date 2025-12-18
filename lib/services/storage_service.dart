@@ -1,55 +1,63 @@
-/// Simple storage service using memory storage
-/// 
-/// Provides methods to save and load data
-/// TODO: Có thể mở rộng để sử dụng SharedPreferences hoặc GetStorage sau
-class StorageService {
-  static final StorageService _instance = StorageService._internal();
-  factory StorageService() => _instance;
-  StorageService._internal();
+import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 
-  // Sử dụng memory storage
-  // TODO: Có thể thay bằng SharedPreferences hoặc GetStorage để lưu persistent
-  final _MemoryStorage _storage = _MemoryStorage();
+import '../configs/constants/storage_key.dart';
+import '../configs/interfaces/storage_interface.dart';
+import '../utils/jwt.dart';
 
-  /// Read value from storage
-  T? read<T>(String key) {
-    return _storage.read<T>(key);
+class StorageService extends GetxService implements IStorage {
+  late final GetStorage _storage;
+
+  Future<StorageService> init() async {
+    await GetStorage.init();
+    _storage = GetStorage();
+    return this;
   }
 
-  /// Write value to storage
-  void write(String key, dynamic value) {
-    _storage.write(key, value);
+  @override
+  Future<bool> clear() async {
+    await _storage.erase();
+    return true;
   }
 
-  /// Remove value from storage
-  void remove(String key) {
-    _storage.remove(key);
+  @override
+  Future<String?> delete<T>(String key) async {
+    final value = _storage.read(key);
+    await _storage.remove(key);
+    return value;
   }
 
-  /// Clear all storage
-  void clear() {
-    _storage.erase();
+  @override
+  Future<String?> get<T>(String key) async {
+    return _storage.read<String>(key);
+  }
+
+  @override
+  Future<bool> set<T>(String key, String value) async {
+    await _storage.write(key, value);
+    return true;
+  }
+
+  Future<dynamic> decodeToken() async {
+    try {
+      var token = await get(StorageKey.token);
+      if (token == null) throw Exception("Token is null");
+      return Jwt.parseJwtPayLoad(token);
+    } catch (error) {
+      return Future.error(error);
+    }
+  }
+
+  Future<bool> setToken(String token) async {
+    await set(StorageKey.token, token);
+    return true;
+  }
+
+  Future<dynamic> getToken() async {
+    try {
+      return await get(StorageKey.token);
+    } catch (error) {
+      return Future.error(error);
+    }
   }
 }
-
-/// Memory storage fallback if GetStorage is not available
-class _MemoryStorage {
-  final Map<String, dynamic> _data = {};
-
-  T? read<T>(String key) {
-    return _data[key] as T?;
-  }
-
-  void write(String key, dynamic value) {
-    _data[key] = value;
-  }
-
-  void remove(String key) {
-    _data.remove(key);
-  }
-
-  void erase() {
-    _data.clear();
-  }
-}
-

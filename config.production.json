@@ -1,0 +1,15 @@
+{
+    "APP_NAME": "Pickleball App",
+    "BUNDLE_ID": "com.pickleballapp",
+    "FLAVOR": "production",
+    "WEB_APP_URL": "https://",
+    "API_URL": "http://192.168.1.18:3000",
+    "DISCOVER_URL": "https://",
+    "DEEP_LINK_HOST": "deeplink.remiapps.xyz",
+    "DEEP_LINK_SCHEME": "remiapp",
+    "DEEP_LINK_SCHEME_HOST": "com.remiapp",
+    "SOCKET_URL": "http://192.168.1.18:3000",
+    "ONESIGNAL_APP_ID": "b202f499-e7bc-45f2-a7f1-1d9ee774ee76",
+    "PROVIDER_FIREBASE": "remiapp",
+    "GOOGLE_CLIENT_ID": "182942803683-bdtvbr92ffs3ieqviinhk0otep19juta.apps.googleusercontent.com"
+}
