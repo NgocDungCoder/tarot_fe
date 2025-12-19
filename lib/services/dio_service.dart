@@ -32,8 +32,6 @@ class DioService extends Getx.GetxService implements IHttpClient {
     // Tự động thêm baseUrl nếu url không có http/https
     final String fullUrl = url.startsWith('http') ? url : Env().apiUrl + url;
 
-    print("dataaaaaaaaaaaa: $data");
-    print(method);
     try {
       final Response response = await _dio.request(
         fullUrl,
@@ -60,7 +58,7 @@ class DioService extends Getx.GetxService implements IHttpClient {
           📟 Status  : ${response.statusCode} ${response.statusMessage}
           ⭐ Data: $data
           🍕 Headers: $headers
-          📦 Response    : ${response.data ?? 'No data'}
+          📦 Response: ${response.data ?? 'No data'}
           ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
           ''',
           name: 'DioService',

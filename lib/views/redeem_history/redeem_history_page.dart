@@ -149,7 +149,8 @@ class RedeemHistoryPage extends GetView<RedeemHistoryController> {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(11),
               child: Image.asset(
-                history.gift.imagePath,
+                // history.gift.imagePath,
+                "",
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
@@ -173,7 +174,7 @@ class RedeemHistoryPage extends GetView<RedeemHistoryController> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CustomText(
-                  history.gift.nameVi,
+                  history.gift.name ?? "",
                   fontSize: 16,
                   color: ThemeConfig.textWhite,
                   fontWeight: FontWeight.bold,

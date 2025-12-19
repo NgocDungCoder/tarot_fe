@@ -1,21 +1,21 @@
 import 'package:get/get.dart';
 
-import '../../views/main_screen/order_history/order_history_page.dart';
-import '../../views/main_screen/redeem_history/redeem_history_page.dart';
-import '../../views/main_screen/card_draw_history/card_draw_history_page.dart';
-import '../../views/main_screen/transaction_history/transaction_history_page.dart';
-import '../../views/main_screen/payment/payment_page.dart';
+import '../../views/card_detail/card_detail_page.dart';
+import '../../views/card_draw/card_draw_page.dart';
+import '../../views/card_draw_history/card_draw_history_page.dart';
+import '../../views/cart/cart_page.dart';
+import '../../views/checkout_confirmation/checkout_confirmation_page.dart';
+import '../../views/order_history/order_history_page.dart';
+import '../../views/payment/payment_page.dart';
+import '../../views/payment_success/payment_success_page.dart';
+import '../../views/product_detail/product_detail_page.dart';
+import '../../views/profile/profile_page.dart';
+import '../../views/redeem_gift/redeem_gift_page.dart';
+import '../../views/redeem_history/redeem_history_page.dart';
 import '../../views/splash/splash_page.dart';
 import '../../views/main_screen/main_page.dart';
-import '../../views/main_screen/card_detail/card_detail_page.dart';
-import '../../views/main_screen/card_draw/card_draw_page.dart';
-import '../../views/main_screen/cart/cart_page.dart';
-import '../../views/main_screen/product_detail/product_detail_page.dart';
 import '../../views/main_screen/explore/view_all_cards_page.dart';
-import '../../views/main_screen/profile/profile_page.dart';
-import '../../views/main_screen/checkout_confirmation/checkout_confirmation_page.dart';
-import '../../views/main_screen/payment_success/payment_success_page.dart';
-import '../../views/main_screen/redeem_gift/redeem_gift_page.dart';
+import '../../views/transaction_history/transaction_history_page.dart';
 
 class RoutePath {
   final String singlePath;

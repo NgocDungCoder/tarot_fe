@@ -1,9 +1,10 @@
-import 'gift.dart';
+import 'package:tarot_fe/models/gift_entity.dart';
+
 
 /// RedeemHistory model - lịch sử đổi quà
 class RedeemHistory {
   final String id;
-  final Gift gift; // Quà đã đổi
+  final GiftEntity gift; // Quà đã đổi
   final int rewardPointsUsed; // Số điểm đã dùng
   final String status; // Trạng thái: pending, processing, shipped, delivered, cancelled
   final DateTime redeemedAt; // Thời gian đổi quà
@@ -22,7 +23,7 @@ class RedeemHistory {
   factory RedeemHistory.fromJson(Map<String, dynamic> json) {
     return RedeemHistory(
       id: json['id']?.toString() ?? '',
-      gift: Gift.fromJson(json['gift'] as Map<String, dynamic>),
+      gift: GiftEntity.fromJson(json['gift'] as Map<String, dynamic>),
       rewardPointsUsed: (json['rewardPointsUsed'] as num?)?.toInt() ?? 0,
       status: json['status']?.toString() ?? 'pending',
       redeemedAt: json['redeemedAt'] != null
@@ -69,7 +70,7 @@ class RedeemHistory {
   /// Create copy with updated fields
   RedeemHistory copyWith({
     String? id,
-    Gift? gift,
+    GiftEntity? gift,
     int? rewardPointsUsed,
     String? status,
     DateTime? redeemedAt,

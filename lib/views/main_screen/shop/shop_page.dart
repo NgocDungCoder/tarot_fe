@@ -7,7 +7,6 @@ import '../../../configs/styles/theme_config.dart';
 import '../../../configs/routes/route.dart';
 import '../../../widget/custom_text.dart';
 import '../../../widget/video_background.dart';
-import '../cart/cart_controller.dart';
 import 'shop_controller.dart';
 
 class ShopBinding extends Bindings {
@@ -22,46 +21,44 @@ class ShopPage extends GetView<ShopController> {
 
   @override
   Widget build(BuildContext context) {
-    return VideoBackground(
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: SafeArea(
-          child: CustomScrollView(
-            slivers: [
-              // Banner
-              SliverToBoxAdapter(
-                child: _buildBanner(),
-              ),
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: SafeArea(
+        child: CustomScrollView(
+          slivers: [
+            // Banner
+            SliverToBoxAdapter(
+              child: _buildBanner(),
+            ),
 
-              // Sticky Action buttons
-              SliverPersistentHeader(
-                pinned: true,
-                delegate: _StickyActionButtonsDelegate(
-                  child: _buildActionButtons(),
-                ),
+            // Sticky Action buttons
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: _StickyActionButtonsDelegate(
+                child: _buildActionButtons(),
               ),
+            ),
 
-              // Products section title
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding:
-                  EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                  child: InkWell(
-                    onTap: () => controller.fetchBanners(),
-                    child: CustomText(
-                      'Products',
-                      fontSize: 24,
-                      color: ThemeConfig.textGold,
-                      fontWeight: FontWeight.bold,
-                    ),
+            // Products section title
+            SliverToBoxAdapter(
+              child: Padding(
+                padding:
+                EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                child: InkWell(
+                  onTap: () => controller.fetchBanners(),
+                  child: CustomText(
+                    'Products',
+                    fontSize: 24,
+                    color: ThemeConfig.textGold,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
+            ),
 
-              // Products grid
-              _buildProductsGrid(),
-            ],
-          ),
+            // Products grid
+            _buildProductsGrid(),
+          ],
         ),
       ),
     );
@@ -207,7 +204,7 @@ class ShopPage extends GetView<ShopController> {
                     ],
                   ),
                   // Badge hiển thị số lượng items
-                  if (controller.totalItem.value > 0)
+                  if (controller.totalItems > 0)
                     Positioned(
                       right: 8,
                       top: 8,
@@ -222,16 +219,18 @@ class ShopPage extends GetView<ShopController> {
                           minHeight: 20,
                         ),
                         child: Center(
-                          child: Text(
-                            controller.totalItem.value > 99
-                                ? '99+'
-                                : '${controller.totalItem.value}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                          child: Obx(() {
+                            return Text(
+                              controller.totalItems > 99
+                                  ? '99+'
+                                  : '${controller.totalItems}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            );
+                          }),
                         ),
                       ),
                     ),
@@ -347,12 +346,14 @@ class ShopPage extends GetView<ShopController> {
   }
 
   /// Build individual product card
-  Widget _buildProductCard(ProductEntity product) {
+  Widget _buildProductCard(ProductId product) {
     return GestureDetector(
       onTap: () {
         Get.toNamed(
-          Routes.productDetail.sp,
-          arguments: product,
+          Routes.productDetail.p,
+          arguments: {
+            "productId": product.id,
+          },
         );
       },
       child: Container(

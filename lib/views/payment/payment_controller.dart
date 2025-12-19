@@ -5,9 +5,9 @@ import 'package:get/get.dart';
 import '../../../configs/routes/route.dart';
 import '../../../models/transaction.dart';
 import '../../../widget/custom_snackbar.dart';
+import '../main_screen/user/user_controller.dart';
 import '../transaction_history/transaction_history_controller.dart';
 import '../transaction_history/transaction_history_page.dart';
-import '../user/user_controller.dart';
 
 class PaymentController extends GetxController {
   // Required amount from checkout (if any)

@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 import '../../../widget/custom_snackbar.dart';
-import '../main_controller.dart';
-import '../main_tab_enum.dart';
+import '../main_screen/main_controller.dart';
+import '../main_screen/main_tab_enum.dart';
 
 class PaymentSuccessController extends GetxController {
   // Order data từ arguments

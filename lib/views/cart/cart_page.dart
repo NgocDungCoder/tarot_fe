@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tarot_fe/models/cart_item_entity.dart';
 import 'package:tarot_fe/models/product_entity.dart';
+import 'package:tarot_fe/widget/custom_popup.dart';
 import '../../../configs/styles/theme_config.dart';
 import '../../../widget/custom_text.dart';
 import '../../../widget/video_background.dart';
@@ -22,49 +23,50 @@ class CartPage extends GetView<CartController> {
     return VideoBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: ThemeConfig.textGold),
-          onPressed: () => Get.back(),
-        ),
-        title: InkWell(
-          onTap: () => controller.fetchItemsInCart(cartId: "6943d423905d10bd4b078aaf"),
-          child: const CustomText(
-            'Cart',
-            fontSize: 24,
-            color: ThemeConfig.textGold,
-            fontWeight: FontWeight.bold,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: ThemeConfig.textGold),
+            onPressed: () => Get.back(),
           ),
+          title: InkWell(
+            onTap: () =>
+                controller.fetchItemsInCart(cartId: "6943d423905d10bd4b078aaf"),
+            child: const CustomText(
+              'Cart',
+              fontSize: 24,
+              color: ThemeConfig.textGold,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          centerTitle: true,
         ),
-        centerTitle: true,
-      ),
-      body: SafeArea(
-        child: Obx(() {
-          if (controller.isEmpty) {
-            return _buildEmptyCart();
-          }
+        body: SafeArea(
+          child: Obx(() {
+            if (controller.isEmpty) {
+              return _buildEmptyCart();
+            }
 
-          return Column(
-            children: [
-              // Cart items list
-              Expanded(
-                child: ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: controller.cartItems.length,
-                  itemBuilder: (context, index) {
-                    return _buildCartItem(controller.cartItems[index]);
-                  },
+            return Column(
+              children: [
+                // Cart items list
+                Expanded(
+                  child: ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: controller.cartItems.length,
+                    itemBuilder: (context, index) {
+                      return _buildCartItem(controller.cartItems[index]);
+                    },
+                  ),
                 ),
-              ),
 
-              // Total and checkout button
-              _buildCheckoutSection(),
-            ],
-          );
-        }),
-      ),
+                // Total and checkout button
+                _buildCheckoutSection(),
+              ],
+            );
+          }),
+        ),
       ),
     );
   }
@@ -75,7 +77,12 @@ class CartPage extends GetView<CartController> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image.asset("assets/icons/shopping-cart.png", height: 40, width: 40, fit: BoxFit.contain,),
+          Image.asset(
+            "assets/icons/shopping-cart.png",
+            height: 40,
+            width: 40,
+            fit: BoxFit.contain,
+          ),
           const SizedBox(height: 20),
           const CustomText(
             'Your cart is empty',
@@ -178,15 +185,16 @@ class CartPage extends GetView<CartController> {
                   children: [
                     // Decrease button
                     GestureDetector(
-                      onTap: () => controller.decreaseQuantity(item?.id ?? ""),
+                      onTap: () =>
+                          controller.updateQuantity(item?.id ?? "", -1),
                       child: Container(
                         width: 32,
                         height: 32,
                         decoration: BoxDecoration(
-                          color: Colors.red.withOpacity(0.2),
+                          color: Colors.red.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: Colors.red.withOpacity(0.5),
+                            color: Colors.red.withValues(alpha: 0.5),
                             width: 1,
                           ),
                         ),
@@ -198,24 +206,23 @@ class CartPage extends GetView<CartController> {
                       ),
                     ),
 
-                    const SizedBox(width: 12),
-
                     // Quantity display
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: CustomText(
-                        '${cartItem.quantity}',
-                        fontSize: 18,
-                        color: ThemeConfig.textWhite,
-                        fontWeight: FontWeight.bold,
+                      width: 60,
+                      margin: const EdgeInsets.symmetric(horizontal: 12),
+                      child: Center(
+                        child: CustomText(
+                          '${cartItem.quantity}',
+                          fontSize: 18,
+                          color: ThemeConfig.textWhite,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
 
-                    const SizedBox(width: 12),
-
                     // Increase button
                     GestureDetector(
-                      onTap: () => controller.increaseQuantity(item?.id ?? ""),
+                      onTap: () => controller.updateQuantity(item?.id ?? "", 1),
                       child: Container(
                         width: 32,
                         height: 32,
@@ -239,7 +246,12 @@ class CartPage extends GetView<CartController> {
 
                     // Remove button
                     GestureDetector(
-                      onTap: () => controller.removeFromCart(item?.id ?? ""),
+                      onTap: () => ConfirmDialog.show(
+                        title: "Xác nhận xóa",
+                        message: "Bạn có muốn xóa sản phẩm này khỏi giỏ hàng ?",
+                        onConfirm: () =>
+                            controller.removeFromCart(cartItem.id ?? ""),
+                      ),
                       child: Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
@@ -287,12 +299,12 @@ class CartPage extends GetView<CartController> {
                 fontSize: 16,
                 color: ThemeConfig.textWhite,
               ),
-              Obx(() => CustomText(
-                    '${controller.totalItems}',
-                    fontSize: 16,
-                    color: ThemeConfig.textGold,
-                    fontWeight: FontWeight.bold,
-                  )),
+              CustomText(
+                '${controller.totalItems}',
+                fontSize: 16,
+                color: ThemeConfig.textGold,
+                fontWeight: FontWeight.bold,
+              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -305,12 +317,12 @@ class CartPage extends GetView<CartController> {
                 color: ThemeConfig.textWhite,
                 fontWeight: FontWeight.bold,
               ),
-              Obx(() => CustomText(
-                    '${controller.totalPrice.toStringAsFixed(0)} MP',
-                    fontSize: 24,
-                    color: ThemeConfig.textGold,
-                    fontWeight: FontWeight.bold,
-                  )),
+              CustomText(
+                '${controller.totalPrice.toInt()} MP',
+                fontSize: 24,
+                color: ThemeConfig.textGold,
+                fontWeight: FontWeight.bold,
+              ),
             ],
           ),
           const SizedBox(height: 20),
@@ -342,4 +354,3 @@ class CartPage extends GetView<CartController> {
     );
   }
 }
-

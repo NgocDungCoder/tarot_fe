@@ -1,4 +1,4 @@
-enum ApiMethod { get, post, put, delete }
+enum ApiMethod { get, post, put, delete, patch }
 
 abstract class IHttpClient {
   Future<dynamic> request(ApiMethod method, String url,

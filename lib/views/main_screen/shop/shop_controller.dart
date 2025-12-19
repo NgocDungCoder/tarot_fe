@@ -7,24 +7,22 @@ import 'package:tarot_fe/models/cart_item_entity.dart';
 import 'package:tarot_fe/models/product_entity.dart';
 import 'package:tarot_fe/providers/api_client.dart';
 import '../../../widget/custom_snackbar.dart';
-import '../cart/cart_controller.dart';
-import '../cart/cart_page.dart';
+import '../../cart/cart_controller.dart';
 
 class ShopController extends GetxController {
   final ApiClient apiClient;
   final isLoading = false.obs;
-  final RxList<ProductEntity> products = <ProductEntity>[].obs;
+  final RxList<ProductId> products = <ProductId>[].obs;
   final RxList<BannerEntity> banners = <BannerEntity>[].obs;
 
   final errorMessage = "".obs;
   final cartController = Get.find<CartController>();
-  final totalItem = 0.obs;
 
   ShopController(this.apiClient) {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await fetchBanners();
       await fetchProducts();
-      totalItem.value = cartController.totalItems;
+      ;
     });
   }
 
@@ -48,6 +46,10 @@ class ShopController extends GetxController {
   void _initBannerSlider() {
     bannerPageController = PageController(initialPage: 0);
     _startBannerTimer();
+  }
+
+  int get totalItems {
+    return cartController.totalItems;
   }
 
   /// Start auto slide timer
@@ -156,8 +158,8 @@ class ShopController extends GetxController {
 
 
   /// Add product to cart
-  void addToCart(ProductEntity product) {
-    cartController.addToCart(product as ProductId);
+  void addToCart(ProductId product) {
+    cartController.addToCart(product);
   }
 
   @override

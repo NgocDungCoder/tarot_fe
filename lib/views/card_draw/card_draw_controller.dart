@@ -6,9 +6,8 @@ import '../../../models/tarot_card.dart';
 import '../../../models/card_draw_history.dart';
 import '../../../services/storage_service.dart';
 import '../../../widget/custom_snackbar.dart';
-import '../home/home_controller.dart';
-import '../main_controller.dart';
 import '../card_draw_history/card_draw_history_controller.dart';
+import '../main_screen/main_controller.dart';
 
 class CardDrawController extends GetxController {
   // Card đã được random từ home controller
@@ -269,7 +268,7 @@ class CardDrawController extends GetxController {
     CustomSnackbar.success(
       title: 'Thành công',
       message: 'Đã mua $count lượt rút bài',
-      duration: const Duration(seconds: 2),
+      duration: const Duration(seconds: 1),
     );
   }
 
@@ -389,7 +388,7 @@ class CardDrawController extends GetxController {
       CustomSnackbar.warning(
         title: 'Hết lượt rút',
         message: 'Bạn đã hết lượt rút bài. Vui lòng mua thêm lượt rút.',
-        duration: const Duration(seconds: 3),
+        duration: const Duration(seconds: 2),
       );
       return;
     }

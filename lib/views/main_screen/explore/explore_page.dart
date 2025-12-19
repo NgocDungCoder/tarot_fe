@@ -18,72 +18,71 @@ class ExplorePage extends GetView<ExploreController> {
 
   @override
   Widget build(BuildContext context) {
-    return VideoBackground(
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-      body: SafeArea(
-        child:
-        SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header
-                const CustomText(
-                  'Explore',
-                  fontSize: 32,
-                  color: ThemeConfig.textGold,
-                  fontWeight: FontWeight.bold,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 30),
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+    body: SafeArea(
+      child:
+      SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header
+              const CustomText(
+                'Explore',
+                fontSize: 32,
+                color: ThemeConfig.textGold,
+                fontWeight: FontWeight.bold,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 30),
 
-                // Blog Section
-                _buildBlogSection(),
+              // Blog Section
+              _buildBlogSection(),
 
-                const SizedBox(height: 30),
+              const SizedBox(height: 30),
 
-                // Major Arcana Section
-                _buildCardSection(
-                  title: 'Major Arcana',
-                  cards: controller.majorCards,
-                  cardType: 'Major',
-                ),
+              // Major Arcana Section
+              _buildCardSection(
+                title: 'Major Arcana',
+                cards: controller.majorCards,
+                cardType: 'Major',
+              ),
 
-                const SizedBox(height: 30),
+              const SizedBox(height: 30),
 
-                // Cup Section
-                _buildCardSection(
-                  title: 'Cup',
-                  cards: controller.cupCards,
-                  cardType: 'Cup',
-                ),
+              // Cup Section
+              _buildCardSection(
+                title: 'Cup',
+                cards: controller.cupCards,
+                cardType: 'Cup',
+              ),
 
-                const SizedBox(height: 30),
+              const SizedBox(height: 30),
 
-                // Wand Section
-                _buildCardSection(
-                  title: 'Wand',
-                  cards: controller.wandCards,
-                  cardType: 'Wand',
-                ),
+              // Wand Section
+              _buildCardSection(
+                title: 'Wand',
+                cards: controller.wandCards,
+                cardType: 'Wand',
+              ),
 
-                const SizedBox(height: 30),
+              const SizedBox(height: 30),
 
-                // Sword Section
-                _buildCardSection(
-                  title: 'Sword',
-                  cards: controller.swordCards,
-                  cardType: 'Sword',
-                ),
+              // Sword Section
+              _buildCardSection(
+                title: 'Sword',
+                cards: controller.swordCards,
+                cardType: 'Sword',
+              ),
 
-                const SizedBox(height: 30),
-              ],
-            ),
-          )
-        ),
+              const SizedBox(height: 30),
+            ],
+          ),
+        )
+      ),
 
-    ),);
+        );
   }
 
   /// Build card section với GridView 2x2 và nút "Xem thêm tất cả"

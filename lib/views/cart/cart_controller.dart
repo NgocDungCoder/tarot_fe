@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer' as developer;
 
 import 'package:flutter/material.dart';
@@ -13,11 +14,13 @@ class CartController extends GetxController {
   // Cart items list
   final _cartItems = <CartItemEntity>[].obs;
   final errorMessage = "".obs;
+
   List<CartItemEntity> get cartItems => _cartItems;
   final cart = Rxn<CartEntity>();
   final ApiClient apiClient;
   final isLoading = false.obs;
   final userIdTest = "6943d3e9905d10bd4b078aad";
+  Timer? _debounceTimer;
 
   CartController(this.apiClient) {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -97,6 +100,7 @@ class CartController extends GetxController {
       isLoading.value = false;
     }
   }
+
   // Get total items count
   int get totalItems {
     //- fold là một phương thức của Iterable (ví dụ List), dùng để gộp (reduce) toàn bộ phần tử của danh sách thành một giá trị duy nhất.
@@ -112,7 +116,10 @@ class CartController extends GetxController {
   // Get total price (Magic Points)
   double get totalPrice {
     return _cartItems.fold(
-        0.0, (sum, item) => sum + (item.price?.toInt() ?? 0));
+        0.0,
+        (sum, item) =>
+            sum +
+            ((item.productId?.price?.toInt() ?? 0.0) * (item.quantity ?? 0)));
   }
 
   // Check if cart is empty
@@ -128,7 +135,7 @@ class CartController extends GetxController {
     if (existingIndex >= 0) {
       // Nếu đã có, tăng số lượng lên 1
       _cartItems[existingIndex] = _cartItems[existingIndex].copyWith(
-        quantity: _cartItems[existingIndex].quantity ?? 0 + 1,
+        quantity: (_cartItems[existingIndex].quantity!) + 1,
       );
 
       _cartItems.refresh();
@@ -143,68 +150,62 @@ class CartController extends GetxController {
     CustomSnackbar.success(
       title: 'Đã thêm vào giỏ',
       message: '${product.name} đã được thêm vào giỏ hàng',
-      duration: const Duration(seconds: 2),
+      duration: const Duration(seconds: 1),
     );
-  }
-
-  /// Update quantity của một item trong giỏ hàng
-  void updateQuantity(String productEntity, int newQuantity) {
-    if (newQuantity <= 0) {
-      removeFromCart(productEntity);
-      return;
-    }
-
-    final index = _cartItems.indexWhere(
-      (item) => item.productId?.id == productEntity,
-    );
-
-    if (index >= 0) {
-      _cartItems[index] = _cartItems[index].copyWith(
-        quantity: newQuantity,
-      );
-
-      _cartItems.refresh();
-    }
   }
 
   /// Remove item from cart
-  void removeFromCart(String productEntity) {
-    _cartItems.removeWhere((item) => item.productId?.id == productEntity);
-  }
-
-  /// Increase quantity by 1
-  void increaseQuantity(String productEntity) {
-    final index = _cartItems.indexWhere(
-      (item) => item.productId?.id == productEntity,
-    );
-
-    if (index >= 0) {
-      _cartItems[index] = _cartItems[index].copyWith(
-        quantity: _cartItems[index].quantity ?? 0 + 1,
+  Future<void> removeFromCart(String cartItemId) async {
+    _cartItems.removeWhere((item) => item.id == cartItemId);
+    try {
+      await apiClient.removeCartItem(
+        cartItemId: cartItemId,
       );
-      _cartItems.refresh();
+      CustomSnackbar.success(
+        title: 'Xóa sản phẩm',
+        message: 'Đã xóa sản phẩm thành công',
+      );
+    } catch (e) {
+      errorMessage.value = "Không thể xóa cart item";
     }
   }
 
-  /// Decrease quantity by 1
-  void decreaseQuantity(String productEntity) {
+  void updateQuantity(String productId, int delta) {
     final index = _cartItems.indexWhere(
-      (item) => item.productId?.id == productEntity,
+      (item) => item.productId?.id == productId,
     );
 
     if (index >= 0) {
-      if (_cartItems[index].quantity! > 1) {
-        _cartItems[index] = _cartItems[index].copyWith(
-          quantity: _cartItems[index].quantity ?? 0 - 1,
-        );
+      final currentItem = _cartItems[index];
+      final int oldQuantity = currentItem.quantity?.toInt() ?? 0;
+      final int newQuantity = oldQuantity + delta;
+
+      if (newQuantity > 0) {
+        // 1. Cập nhật ngay trên giao diện
+        _cartItems[index] = currentItem.copyWith(quantity: newQuantity);
         _cartItems.refresh();
+
+        // 2. Reset timer nếu người dùng bấm liên tục
+        _debounceTimer?.cancel();
+        _debounceTimer = Timer(const Duration(seconds: 3), () async {
+          try {
+            await apiClient.updateQuantityCartItem(
+              cartItemId: currentItem.id ?? "",
+              quantity: _cartItems[index].quantity?.toInt() ?? newQuantity,
+            );
+          } catch (e) {
+            // rollback nếu API lỗi
+            _cartItems[index] = currentItem.copyWith(quantity: oldQuantity);
+            _cartItems.refresh();
+            errorMessage.value = "Không thể cập nhật số lượng";
+          }
+        });
       } else {
-        removeFromCart(productEntity);
+        removeFromCart(productId);
       }
     }
   }
 
-  /// Clear cart
   void clearCart() {
     _cartItems.clear();
   }

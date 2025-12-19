@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
 import '../../../models/tarot_card.dart';
-import '../main_controller.dart';
+import '../main_screen/main_controller.dart';
 
 class CardDetailController extends GetxController {
   // Card data được truyền từ explore page

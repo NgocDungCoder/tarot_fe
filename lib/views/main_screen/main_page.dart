@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:tarot_fe/widget/video_background.dart';
 import 'package:video_player/video_player.dart';
 import 'dart:io';
 import '../../../configs/styles/theme_config.dart';
 import '../../../widget/custom_text.dart';
 import '../../../widget/custom_snackbar.dart';
+import '../cart/cart_controller.dart';
 import 'main_controller.dart';
 import 'main_tab_enum.dart';
 import 'home/home_page.dart';
@@ -15,7 +17,6 @@ import 'shop/shop_page.dart';
 import 'shop/shop_controller.dart';
 import 'user/user_page.dart';
 import 'user/user_controller.dart';
-import 'cart/cart_controller.dart';
 
 class MainBinding extends Bindings {
   @override
@@ -59,30 +60,23 @@ class MainPage extends GetView<MainController> {
             );
           }
         },
-        child: Scaffold(
-          backgroundColor: Colors.transparent,
-          extendBody: true, // Cho phép body mở rộng ra toàn bộ màn hình, không tự động thêm padding
-          body: SafeArea(
-            child: Obx(() {
-              return Stack(
-                children: [
-                  // Background video
-                  Positioned.fill(
-                    child: _buildBackground(),
-                  ),
-                  Column(
-                    children: [
-                      // Page content
-                      Expanded(
-                        child: Container(child: _buildCurrentPage()),
-                      ),
-                      // Bottom navigation bar trong suốt
-                      _buildBottomNavigationBar(),
-                    ],
-                  ),
-                ],
-              );
-            }),
+        child: VideoBackground(
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
+            extendBody: true, // Cho phép body mở rộng ra toàn bộ màn hình, không tự động thêm padding
+            body: SafeArea(
+              child: Obx(() {
+                return Column(
+                  children: [
+                    Expanded(
+                      child: Container(child: _buildCurrentPage()),
+                    ),
+                    // Bottom navigation bar trong suốt
+                    _buildBottomNavigationBar(),
+                  ],
+                );
+              }),
+            ),
           ),
         ),
       ),

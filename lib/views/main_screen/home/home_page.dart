@@ -19,38 +19,37 @@ class HomePage extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
-    return VideoBackground(
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-      body: Obx(() {
-        final card = controller.randomCard;
-        final isRevealed = controller.isCardRevealed;
-        
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              // Header
-              Padding(
-                padding: const EdgeInsets.only(bottom: 20.0),
-                child: CustomText(
-                  'Chose your destiny card',
-                  fontSize: 32,
-                  color: ThemeConfig.textGold,
-                  textAlign: TextAlign.center,
-                ),
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+    body: Obx(() {
+      final card = controller.randomCard;
+      final isRevealed = controller.isCardRevealed;
+
+      return SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            // Header
+            Padding(
+              padding: const EdgeInsets.only(bottom: 20.0),
+              child: CustomText(
+                'Chose your destiny card',
+                fontSize: 32,
+                color: ThemeConfig.textGold,
+                textAlign: TextAlign.center,
               ),
+            ),
 
-              const SizedBox(height: 20),
+            const SizedBox(height: 20),
 
-              _buildFlipCard(),
+            _buildFlipCard(),
 
-              const SizedBox(height: 30),
-            ],
-          ),
+            const SizedBox(height: 30),
+          ],
+        ),
+      );
+    }),
         );
-      }),
-    ),);
   }
 
   /// Build card - tap để chuyển sang trang rút bài

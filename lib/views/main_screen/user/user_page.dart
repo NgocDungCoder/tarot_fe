@@ -21,74 +21,72 @@ class UserPage extends GetView<UserController> {
 
   @override
   Widget build(BuildContext context) {
-    return VideoBackground(
-      child: SafeArea(
-      child: Obx(() {
-        if (controller.isLoading) {
-          return const Center(
-            child: CircularProgressIndicator(
-              color: ThemeConfig.textGold,
-            ),
-          );
-        }
-
-        final user = controller.user;
-        if (user == null) {
-          return const Center(
-            child: CustomText(
-              'Không có dữ liệu người dùng',
-              fontSize: 16,
-              color: ThemeConfig.textWhite,
-            ),
-          );
-        }
-
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 20),
-              
-              // Title
-              const CustomText(
-                'Cài đặt',
-                fontSize: 28,
-                color: ThemeConfig.textGold,
-                fontWeight: FontWeight.bold,
-              ),
-              
-              const SizedBox(height: 20),
-              
-              // Avatar và thông tin cơ bản
-              _buildUserHeader(user),
-              
-              const SizedBox(height: 30),
-              
-              // Magic Points và Reward Points
-              _buildBalanceSection(user),
-              
-              const SizedBox(height: 30),
-              
-              // Cung hoàng đạo
-              _buildZodiacSection(user),
-              
-              const SizedBox(height: 30),
-              
-              // Lịch sử và thống kê
-              _buildHistorySection(),
-              
-              const SizedBox(height: 30),
-              
-              // Menu items
-              _buildMenuSection(),
-              
-              const SizedBox(height: 30),
-            ],
+    return SafeArea(
+    child: Obx(() {
+      if (controller.isLoading) {
+        return const Center(
+          child: CircularProgressIndicator(
+            color: ThemeConfig.textGold,
           ),
         );
-      }),
-      ),
+      }
+
+      final user = controller.user;
+      if (user == null) {
+        return const Center(
+          child: CustomText(
+            'Không có dữ liệu người dùng',
+            fontSize: 16,
+            color: ThemeConfig.textWhite,
+          ),
+        );
+      }
+
+      return SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 20),
+
+            // Title
+            const CustomText(
+              'Cài đặt',
+              fontSize: 28,
+              color: ThemeConfig.textGold,
+              fontWeight: FontWeight.bold,
+            ),
+
+            const SizedBox(height: 20),
+
+            // Avatar và thông tin cơ bản
+            _buildUserHeader(user),
+
+            const SizedBox(height: 30),
+
+            // Magic Points và Reward Points
+            _buildBalanceSection(user),
+
+            const SizedBox(height: 30),
+
+            // Cung hoàng đạo
+            _buildZodiacSection(user),
+
+            const SizedBox(height: 30),
+
+            // Lịch sử và thống kê
+            _buildHistorySection(),
+
+            const SizedBox(height: 30),
+
+            // Menu items
+            _buildMenuSection(),
+
+            const SizedBox(height: 30),
+          ],
+        ),
+      );
+    }),
     );
   }
 

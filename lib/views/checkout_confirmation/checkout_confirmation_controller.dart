@@ -5,11 +5,11 @@ import '../../../configs/routes/route.dart';
 import '../../../widget/custom_snackbar.dart';
 import '../../../widget/custom_text.dart';
 import '../cart/cart_controller.dart';
+import '../main_screen/user/user_controller.dart';
 import '../order_history/order_history_controller.dart';
 import '../order_history/order_history_page.dart';
 import '../transaction_history/transaction_history_controller.dart';
 import '../transaction_history/transaction_history_page.dart';
-import '../user/user_controller.dart';
 import '../../../models/transaction.dart';
 
 class CheckoutConfirmationController extends GetxController {

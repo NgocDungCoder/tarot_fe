@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:tarot_fe/models/gift_entity.dart';
 import '../../../configs/styles/theme_config.dart';
-import '../../../models/gift.dart';
 import '../../../widget/custom_text.dart';
 import '../../../widget/video_background.dart';
 import 'redeem_gift_controller.dart';
@@ -9,7 +9,7 @@ import 'redeem_gift_controller.dart';
 class RedeemGiftBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<RedeemGiftController>(() => RedeemGiftController());
+    Get.lazyPut<RedeemGiftController>(() => RedeemGiftController(Get.find()));
   }
 }
 
@@ -52,7 +52,7 @@ class RedeemGiftPage extends GetView<RedeemGiftController> {
             // Gifts list
             Expanded(
               child: Obx(() {
-                if (controller.isLoading) {
+                if (controller.isLoading.value) {
                   return const Center(
                     child: CircularProgressIndicator(
                       color: ThemeConfig.textGold,
@@ -203,12 +203,12 @@ class RedeemGiftPage extends GetView<RedeemGiftController> {
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: controller.categories.map((category) {
-                    final isSelected = controller.selectedCategory == category;
+                    final isSelected = controller.selectedCategory == category.name;
                     return Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: FilterChip(
                         label: CustomText(
-                          _getCategoryName(category),
+                          category.name ?? "",
                           fontSize: 14,
                           color:
                               isSelected ? Colors.black : ThemeConfig.textWhite,
@@ -216,8 +216,8 @@ class RedeemGiftPage extends GetView<RedeemGiftController> {
                               isSelected ? FontWeight.bold : FontWeight.normal,
                         ),
                         selected: isSelected,
-                        onSelected: (selected) {
-                          controller.setCategory(category);
+                        onSelected: (_) {
+                          controller.setCategory(category.name ?? "");
                         },
                         selectedColor: ThemeConfig.textGold,
                         backgroundColor: Colors.black.withOpacity(0.6),
@@ -236,28 +236,9 @@ class RedeemGiftPage extends GetView<RedeemGiftController> {
     );
   }
 
-  /// Get category display name
-  String _getCategoryName(String category) {
-    switch (category) {
-      case 'all':
-        return 'Tất cả';
-      case 'decoration':
-        return 'Trang trí';
-      case 'cards':
-        return 'Bài Tarot';
-      case 'jewelry':
-        return 'Trang sức';
-      case 'wellness':
-        return 'Sức khỏe';
-      case 'books':
-        return 'Sách';
-      default:
-        return category;
-    }
-  }
 
   /// Build gift card
-  Widget _buildGiftCard(Gift gift) {
+  Widget _buildGiftCard(GiftEntity gift) {
     final canRedeem = controller.canRedeem(gift);
 
     return GestureDetector(
@@ -285,7 +266,7 @@ class RedeemGiftPage extends GetView<RedeemGiftController> {
                     top: Radius.circular(16),
                   ),
                   image: DecorationImage(
-                    image: AssetImage(gift.imagePath),
+                    image: NetworkImage(gift.thumbnail ?? ""),
                     fit: BoxFit.cover,
                     onError: (exception, stackTrace) {
                       // Handle error
@@ -295,10 +276,10 @@ class RedeemGiftPage extends GetView<RedeemGiftController> {
                 child: Stack(
                   children: [
                     // Overlay if not available
-                    if (!gift.isAvailable)
+                    if (gift.stock! <= 0)
                       Container(
                         decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.7),
+                          color: Colors.black.withValues(alpha: 0.7),
                           borderRadius: const BorderRadius.vertical(
                             top: Radius.circular(16),
                           ),
@@ -324,7 +305,7 @@ class RedeemGiftPage extends GetView<RedeemGiftController> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   CustomText(
-                    gift.nameVi,
+                    gift.name ?? "",
                     fontSize: 16,
                     color: ThemeConfig.textWhite,
                     fontWeight: FontWeight.bold,
@@ -344,7 +325,7 @@ class RedeemGiftPage extends GetView<RedeemGiftController> {
                           ),
                           const SizedBox(width: 4),
                           CustomText(
-                            '${gift.rewardPointsRequired} RP',
+                            '${gift.price} RP',
                             fontSize: 14,
                             color: ThemeConfig.textGold,
                             fontWeight: FontWeight.bold,
@@ -369,7 +350,7 @@ class RedeemGiftPage extends GetView<RedeemGiftController> {
   }
 
   /// Show gift detail dialog
-  void _showGiftDetail(Gift gift) {
+  void _showGiftDetail(GiftEntity gift) {
     final canRedeem = controller.canRedeem(gift);
 
     Get.dialog(
@@ -398,7 +379,7 @@ class RedeemGiftPage extends GetView<RedeemGiftController> {
                       top: Radius.circular(20),
                     ),
                     image: DecorationImage(
-                      image: AssetImage(gift.imagePath),
+                      image: NetworkImage(gift.thumbnail ?? ""),
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -411,20 +392,14 @@ class RedeemGiftPage extends GetView<RedeemGiftController> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       CustomText(
-                        gift.nameVi,
+                        gift.name ?? "",
                         fontSize: 24,
                         color: ThemeConfig.textGold,
                         fontWeight: FontWeight.bold,
                       ),
-                      const SizedBox(height: 8),
-                      CustomText(
-                        gift.name,
-                        fontSize: 16,
-                        color: ThemeConfig.textWhite.withOpacity(0.7),
-                      ),
                       const SizedBox(height: 16),
                       CustomText(
-                        gift.description,
+                        gift.description ?? "",
                         fontSize: 14,
                         color: ThemeConfig.textWhite,
                       ),
@@ -442,7 +417,7 @@ class RedeemGiftPage extends GetView<RedeemGiftController> {
                               ),
                               const SizedBox(height: 4),
                               CustomText(
-                                '${gift.rewardPointsRequired} RP',
+                                '${gift.price} RP',
                                 fontSize: 20,
                                 color: ThemeConfig.textGold,
                                 fontWeight: FontWeight.bold,
@@ -462,7 +437,7 @@ class RedeemGiftPage extends GetView<RedeemGiftController> {
                                 '${controller.currentRewardPoints} RP',
                                 fontSize: 20,
                                 color: controller.currentRewardPoints >=
-                                        gift.rewardPointsRequired
+                                    (gift.price ?? 0)
                                     ? Colors.green
                                     : Colors.red,
                                 fontWeight: FontWeight.bold,
@@ -476,7 +451,7 @@ class RedeemGiftPage extends GetView<RedeemGiftController> {
                         width: double.infinity,
                         height: 50,
                         child: ElevatedButton(
-                          onPressed: canRedeem && gift.isAvailable
+                          onPressed: canRedeem && (gift.stock! > 0)
                               ? () {
                                   Get.back();
                                   _showConfirmDialog(gift);
@@ -491,11 +466,11 @@ class RedeemGiftPage extends GetView<RedeemGiftController> {
                             ),
                           ),
                           child: CustomText(
-                            canRedeem && gift.isAvailable
+                            canRedeem && (gift.stock! > 0)
                                 ? 'Đổi quà ngay'
-                                : !gift.isAvailable
-                                    ? 'Hết hàng'
-                                    : 'Không đủ điểm',
+                                : (gift.stock! > 0)
+                                    ? 'Không đủ điểm'
+                                    : 'Hết hàng',
                             fontSize: 16,
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
@@ -514,7 +489,7 @@ class RedeemGiftPage extends GetView<RedeemGiftController> {
   }
 
   /// Show confirm redeem dialog
-  void _showConfirmDialog(Gift gift) {
+  void _showConfirmDialog(GiftEntity gift) {
     final canRedeem = controller.canRedeem(gift);
     final currentPoints = controller.currentRewardPoints;
 
@@ -542,17 +517,17 @@ class RedeemGiftPage extends GetView<RedeemGiftController> {
             const SizedBox(height: 16),
             _buildInfoRow(
               label: 'Quà tặng',
-              value: gift.nameVi,
+              value: gift.name ?? "",
             ),
             const SizedBox(height: 8),
             _buildInfoRow(
               label: 'Điểm cần dùng',
-              value: '${gift.rewardPointsRequired} RP',
+              value: '${gift.price} RP',
             ),
             const SizedBox(height: 8),
             _buildInfoRow(
               label: 'Điểm còn lại',
-              value: '${currentPoints - gift.rewardPointsRequired} RP',
+              value: '${currentPoints - (gift.price ?? 0)} RP',
             ),
           ],
         ),
@@ -566,7 +541,7 @@ class RedeemGiftPage extends GetView<RedeemGiftController> {
           ),
           ElevatedButton(
             onPressed: () async {
-              await controller.redeemGift(gift);
+              // await controller.redeemGift(gift);
               Get.back();
             },
             style: ElevatedButton.styleFrom(
