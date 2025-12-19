@@ -2,6 +2,7 @@ import 'dart:developer' as developer;
 
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:tarot_fe/models/cart_item_entity.dart';
 import 'package:tarot_fe/providers/api_client.dart';
 import '../../../models/product_entity.dart';
 import '../cart/cart_controller.dart';
@@ -112,7 +113,7 @@ class ProductDetailController extends GetxController {
       CartBinding().dependencies();
     }
     final cartController = Get.find<CartController>();
-    cartController.addToCart(product);
+    cartController.addToCart(product as ProductId);
   }
 }
 

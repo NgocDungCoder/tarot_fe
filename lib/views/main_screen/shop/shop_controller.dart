@@ -3,6 +3,7 @@ import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tarot_fe/models/banner_entity.dart';
+import 'package:tarot_fe/models/cart_item_entity.dart';
 import 'package:tarot_fe/models/product_entity.dart';
 import 'package:tarot_fe/providers/api_client.dart';
 import '../../../widget/custom_snackbar.dart';
@@ -156,7 +157,7 @@ class ShopController extends GetxController {
 
   /// Add product to cart
   void addToCart(ProductEntity product) {
-    cartController.addToCart(product);
+    cartController.addToCart(product as ProductId);
   }
 
   @override

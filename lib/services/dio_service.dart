@@ -32,10 +32,13 @@ class DioService extends Getx.GetxService implements IHttpClient {
     // Tự động thêm baseUrl nếu url không có http/https
     final String fullUrl = url.startsWith('http') ? url : Env().apiUrl + url;
 
+    print("dataaaaaaaaaaaa: $data");
+    print(method);
     try {
       final Response response = await _dio.request(
         fullUrl,
-        data: data,
+        data: method == ApiMethod.get ? null : data,
+        queryParameters: method == ApiMethod.get ? (data as Map<String, dynamic>?) : null, // GET tự động tạo query string
         options: Options(
           method: method.name.toUpperCase(), // GET, POST, PUT, DELETE
           headers: {
@@ -55,7 +58,9 @@ class DioService extends Getx.GetxService implements IHttpClient {
           🌐 URL     : $fullUrl
           📌 Method  : ${method.name.toUpperCase()}
           📟 Status  : ${response.statusCode} ${response.statusMessage}
-          📦 Data    : ${response.data ?? 'No data'}
+          ⭐ Data: $data
+          🍕 Headers: $headers
+          📦 Response    : ${response.data ?? 'No data'}
           ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
           ''',
           name: 'DioService',

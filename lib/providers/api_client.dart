@@ -1,5 +1,6 @@
 import 'package:tarot_fe/models/banner_entity.dart';
 import 'package:tarot_fe/models/cart_entity.dart';
+import 'package:tarot_fe/models/cart_item_entity.dart';
 import 'package:tarot_fe/models/paging_res_entity.dart';
 
 import '../configs/interfaces/api_client_interface.dart';
@@ -51,7 +52,7 @@ class ApiClient extends IApiClient {
     final res = await request(ApiMethod.get, '/carts', {
       "page": page,
       "limit": limit,
-      "userId": "6943d3e9905d10bd4b078aad",
+      "userId": userId,
     },);
 
     //viết trung gian
@@ -73,7 +74,7 @@ class ApiClient extends IApiClient {
   }
 
 
-  Future<PagingResEntity<ProductEntity>?> getCartItems({
+  Future<PagingResEntity<CartItemEntity>?> getCartItems({
     int page = 1,
     int limit = 15,
     String? cartId,
@@ -81,18 +82,18 @@ class ApiClient extends IApiClient {
     final res = await request(ApiMethod.get, '/cart-items', {
       "page": page,
       "limit": limit,
-      "cart_id": cartId,
+      "cartId": cartId,
     });
 
     //viết trung gian
     final apiResponse = await parseJsonUtil(
       res,
           (dynamic json) =>
-      ApiResponseEntity<PagingResEntity<ProductEntity>>.fromJson(
+      ApiResponseEntity<PagingResEntity<CartItemEntity>>.fromJson(
         json,
-            (dynamic data) => PagingResEntity<ProductEntity>.fromJson(
+            (dynamic data) => PagingResEntity<CartItemEntity>.fromJson(
           data,
-              (item) => ProductEntity.fromJson(item),
+              (item) => CartItemEntity.fromJson(item),
         ),
       ),
     );

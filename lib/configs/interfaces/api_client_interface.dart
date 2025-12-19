@@ -12,7 +12,6 @@ abstract class IApiClient {
   @protected
   Future<dynamic> request(ApiMethod method, String url,
       [dynamic data, Map<String, String>? headers]) async {
-    print("chaạy vo trong interface");
     return _api.request(method, url, data, headers);
   }
 

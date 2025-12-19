@@ -17,6 +17,7 @@ class CartController extends GetxController {
   final cart = Rxn<CartEntity>();
   final ApiClient apiClient;
   final isLoading = false.obs;
+  final userIdTest = "6943d3e9905d10bd4b078aad";
 
   CartController(this.apiClient) {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -28,14 +29,14 @@ class CartController extends GetxController {
   Future<void> fetchCartOfUser() async {
     developer.log(
       'Fetching products',
-      name: 'ShopController',
+      name: 'CartController',
     );
 
     try {
       isLoading.value = true;
       errorMessage.value = '';
 
-      final response = await apiClient.getCartOfUser();
+      final response = await apiClient.getCartOfUser(userId: userIdTest);
 
       if (response == null) {
         throw Exception('Product detail response is null');
@@ -45,14 +46,14 @@ class CartController extends GetxController {
 
       developer.log(
         'Fetch products success',
-        name: 'ShopController',
+        name: 'CartController',
       );
     } catch (e, stackTrace) {
       errorMessage.value = 'Không thể tải list sản phẩm';
 
       developer.log(
         'Fetch products failed',
-        name: 'Shop Controller',
+        name: 'CartController',
         error: e,
         stackTrace: stackTrace,
       );
@@ -63,32 +64,32 @@ class CartController extends GetxController {
 
   Future<void> fetchItemsInCart({required String cartId}) async {
     developer.log(
-      'Fetching products',
-      name: 'ShopController',
+      'Fetching cart items',
+      name: 'CartController',
     );
 
     try {
       isLoading.value = true;
       errorMessage.value = '';
-
-      final response = await apiClient.getCartOfUser();
+      print("===================> $cartId");
+      final response = await apiClient.getCartItems(cartId: cartId);
 
       if (response == null) {
-        throw Exception('Product detail response is null');
+        throw Exception('cart items response is null');
       }
 
-      cart.value = response.docs?.first;
+      _cartItems.value = response.docs ?? [];
 
       developer.log(
-        'Fetch products success',
-        name: 'ShopController',
+        'Fetch cart items success',
+        name: 'CartController',
       );
     } catch (e, stackTrace) {
-      errorMessage.value = 'Không thể tải list sản phẩm';
+      errorMessage.value = 'Không thể tải list cart items';
 
       developer.log(
-        'Fetch products failed',
-        name: 'Shop Controller',
+        'Fetch cart items failed',
+        name: 'CartController',
         error: e,
         stackTrace: stackTrace,
       );
@@ -118,10 +119,10 @@ class CartController extends GetxController {
   bool get isEmpty => _cartItems.isEmpty;
 
   /// Add product to cart (thêm 1 vào giỏ hàng)
-  void addToCart(ProductEntity product) {
+  void addToCart(ProductId product) {
     // Tìm xem sản phẩm đã có trong giỏ hàng chưa
     final existingIndex = _cartItems.indexWhere(
-      (item) => item.productEntity?.id == product.id,
+      (item) => item.productId?.id == product.id,
     );
 
     if (existingIndex >= 0) {
@@ -135,7 +136,7 @@ class CartController extends GetxController {
       _cartItems.refresh();
     } else {
       // Nếu chưa có, thêm mới với quantity = 1
-      _cartItems.add(CartItemEntity(productEntity: product, quantity: 1));
+      _cartItems.add(CartItemEntity(productId: product, quantity: 1));
     }
 
     // Hiển thị thông báo
@@ -154,7 +155,7 @@ class CartController extends GetxController {
     }
 
     final index = _cartItems.indexWhere(
-      (item) => item.productEntity?.id == productEntity,
+      (item) => item.productId?.id == productEntity,
     );
 
     if (index >= 0) {
@@ -168,13 +169,13 @@ class CartController extends GetxController {
 
   /// Remove item from cart
   void removeFromCart(String productEntity) {
-    _cartItems.removeWhere((item) => item.productEntity?.id == productEntity);
+    _cartItems.removeWhere((item) => item.productId?.id == productEntity);
   }
 
   /// Increase quantity by 1
   void increaseQuantity(String productEntity) {
     final index = _cartItems.indexWhere(
-      (item) => item.productEntity?.id == productEntity,
+      (item) => item.productId?.id == productEntity,
     );
 
     if (index >= 0) {
@@ -188,7 +189,7 @@ class CartController extends GetxController {
   /// Decrease quantity by 1
   void decreaseQuantity(String productEntity) {
     final index = _cartItems.indexWhere(
-      (item) => item.productEntity?.id == productEntity,
+      (item) => item.productId?.id == productEntity,
     );
 
     if (index >= 0) {

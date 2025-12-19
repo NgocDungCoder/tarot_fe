@@ -30,7 +30,7 @@ class CartPage extends GetView<CartController> {
           onPressed: () => Get.back(),
         ),
         title: InkWell(
-          onTap: () => controller.fetchCartOfUser(),
+          onTap: () => controller.fetchItemsInCart(cartId: "6943d423905d10bd4b078aaf"),
           child: const CustomText(
             'Cart',
             fontSize: 24,
@@ -96,7 +96,7 @@ class CartPage extends GetView<CartController> {
 
   /// Build cart item card
   Widget _buildCartItem(CartItemEntity cartItem) {
-    final item = cartItem.productEntity;
+    final item = cartItem.productId;
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
@@ -161,12 +161,6 @@ class CartPage extends GetView<CartController> {
                   fontSize: 16,
                   color: ThemeConfig.textWhite,
                   fontWeight: FontWeight.bold,
-                ),
-                const SizedBox(height: 4),
-                CustomText(
-                  item?.name ?? "",
-                  fontSize: 12,
-                  color: ThemeConfig.textWhite.withOpacity(0.7),
                 ),
                 const SizedBox(height: 8),
 
