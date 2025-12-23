@@ -1,9 +1,16 @@
+import 'dart:developer' as developer;
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:tarot_fe/models/address_entity.dart';
+import 'package:tarot_fe/models/discount_entity.dart';
+import 'package:tarot_fe/providers/api_client.dart';
 import '../../../configs/styles/theme_config.dart';
 import '../../../configs/routes/route.dart';
 import '../../../widget/custom_snackbar.dart';
 import '../../../widget/custom_text.dart';
+import '../../models/cart_entity.dart';
+import '../../models/cart_item_entity.dart';
 import '../cart/cart_controller.dart';
 import '../main_screen/user/user_controller.dart';
 import '../order_history/order_history_controller.dart';
@@ -13,18 +20,19 @@ import '../transaction_history/transaction_history_page.dart';
 import '../../../models/transaction.dart';
 
 class CheckoutConfirmationController extends GetxController {
-  // Cart items từ CartController
-  // List<CartItem> get cartItems {
-  //   if (Get.isRegistered<CartController>()) {
-  //     return Get.find<CartController>().cartItems;
-  //   }
-  //   return [];
-  // }
+  final ApiClient apiClient;
+  final isLoading = false.obs;
+  final errorMessage = "".obs;
+  final userIdTest = "6943d3e9905d10bd4b078aad";
 
-  // Loading state
-  final _isLoading = false.obs;
+  final cart = Rxn<CartEntity>();
+  final cartItems = <CartItemEntity>[].obs;
+  final discounts = <DiscountEntity>[].obs;
+  final address = Rx<AddressEntity?>(null);
 
-  bool get isLoading => _isLoading.value;
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController addressController = TextEditingController();
 
   // Processing payment state
   final _isProcessing = false.obs;
@@ -32,33 +40,174 @@ class CheckoutConfirmationController extends GetxController {
   bool get isProcessing => _isProcessing.value;
 
   // Selected voucher
-  final _selectedVoucher = Rx<Map<String, dynamic>?>(null);
+  final selectedVoucher = Rx<DiscountEntity?>(null);
 
-  Map<String, dynamic>? get selectedVoucher => _selectedVoucher.value;
-
-  // Shipping info
-  final _shippingInfo = <String, String>{
-    'name': 'Nguyễn Văn A',
-    'phone': '+84 123 456 789',
-    'address': '123 Đường ABC, Quận XYZ, TP.HCM',
-  }.obs;
-
-  Map<String, String> get shippingInfo => _shippingInfo;
+  CheckoutConfirmationController(this.apiClient);
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
-    _loadData();
+    await fetchCartOfUser();
+    await fetchItemsInCart(cartId: cart.value?.id ?? "");
+    await fetchAddressOfUser();
+    await fetchDiscount();
+    getTotalPrice();
   }
 
-  /// Load initial data
-  void _loadData() {
-    _isLoading.value = true;
-    // Simulate loading
-    Future.delayed(const Duration(milliseconds: 300), () {
-      _isLoading.value = false;
-    });
+  Future<void> fetchCartOfUser() async {
+    developer.log(
+      'Fetching products',
+      name: 'CartController',
+    );
+
+    try {
+      isLoading.value = true;
+      errorMessage.value = '';
+
+      final response = await apiClient.getCartOfUser(userId: userIdTest);
+
+      if (response == null) {
+        throw Exception('Product detail response is null');
+      }
+
+      cart.value = response.docs?.first;
+
+      developer.log(
+        'Fetch products success',
+        name: 'CartController',
+      );
+    } catch (e, stackTrace) {
+      errorMessage.value = 'Không thể tải list sản phẩm';
+
+      developer.log(
+        'Fetch products failed',
+        name: 'CartController',
+        error: e,
+        stackTrace: stackTrace,
+      );
+    } finally {
+      isLoading.value = false;
+    }
   }
+
+  Future<void> fetchItemsInCart({required String cartId}) async {
+    developer.log(
+      'Fetching cart items',
+      name: 'CartController',
+    );
+
+    try {
+      isLoading.value = true;
+      errorMessage.value = '';
+      final response = await apiClient.getCartItems(cartId: cartId);
+
+      if (response == null) {
+        throw Exception('cart items response is null');
+      }
+
+      cartItems.value = response.docs ?? [];
+
+      developer.log(
+        'Fetch cart items success',
+        name: 'CartController',
+      );
+    } catch (e, stackTrace) {
+      errorMessage.value = 'Không thể tải list cart items';
+
+      developer.log(
+        'Fetch cart items failed',
+        name: 'CartController',
+        error: e,
+        stackTrace: stackTrace,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> fetchAddressOfUser() async {
+    developer.log(
+      'Fetching address',
+      name: 'CartController',
+    );
+
+    try {
+      isLoading.value = true;
+      errorMessage.value = '';
+
+      final response = await apiClient.getAddressOfUser(userId: userIdTest);
+
+      if (response == null) {
+        throw Exception('address detail response is null');
+      }
+
+      address.value = response;
+
+      if (address.value != null) {
+        setTextController();
+      }
+
+      developer.log(
+        'Fetch address success',
+        name: 'CartController',
+      );
+    } catch (e, stackTrace) {
+      errorMessage.value = 'Không thể tải list sản phẩm';
+
+      developer.log(
+        'Fetch address failed',
+        name: 'CartController',
+        error: e,
+        stackTrace: stackTrace,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  void setTextController() {
+    nameController.text = address.value?.fullName ?? '';
+    phoneController.text = address.value?.phone ?? "";
+    addressController.text = address.value?.detail ?? "";
+  }
+
+  Future<void> fetchDiscount() async {
+    developer.log(
+      'Fetching discounts',
+      name: 'checkoutController',
+    );
+
+    try {
+      isLoading.value = true;
+      errorMessage.value = '';
+
+      final response = await apiClient.getDiscounts();
+
+      if (response == null) {
+        throw Exception('discounts detail response is null');
+      }
+
+      discounts.value = response.docs ?? [];
+
+      developer.log(
+        'Fetch discounts success',
+        name: 'checkoutController',
+      );
+    } catch (e, stackTrace) {
+      errorMessage.value = 'Không thể tải list discount';
+
+      developer.log(
+        'Fetch discounts failed',
+        name: 'checkoutController',
+        error: e,
+        stackTrace: stackTrace,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  void getTotalPrice() {}
 
   /// Calculate subtotal (tổng tiền trước khi giảm giá)
   double get subtotal {
@@ -68,8 +217,7 @@ class CheckoutConfirmationController extends GetxController {
 
   /// Calculate voucher discount (giảm giá từ voucher)
   double get voucherDiscount {
-    if (_selectedVoucher.value == null) return 0.0;
-    final discountPercent = _selectedVoucher.value!['discount'] as num? ?? 0;
+    final discountPercent = selectedVoucher.value?.value ?? 0;
     return subtotal * (discountPercent / 100);
   }
 
@@ -95,113 +243,9 @@ class CheckoutConfirmationController extends GetxController {
     return true;
   }
 
-  /// Select voucher
-  void selectVoucher() {
-    // Danh sách voucher mẫu
-    final vouchers = [
-      {
-        'code': 'GIAM10',
-        'discount': 10,
-        'description': 'Giảm 10% cho đơn hàng từ 1000 MP',
-      },
-      {
-        'code': 'GIAM20',
-        'discount': 20,
-        'description': 'Giảm 20% cho đơn hàng từ 2000 MP',
-      },
-      {
-        'code': 'FREESHIP',
-        'discount': 5,
-        'description': 'Giảm 5% + miễn phí vận chuyển',
-      },
-    ];
-
-    Get.bottomSheet(
-      Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.black87,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          border: Border.all(
-            color: ThemeConfig.textGold.withOpacity(0.3),
-            width: 1,
-          ),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const CustomText(
-              'Chọn voucher',
-              fontSize: 20,
-              color: ThemeConfig.textGold,
-              fontWeight: FontWeight.bold,
-            ),
-            const SizedBox(height: 20),
-            ...vouchers.map((voucher) {
-              return Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade900,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: _selectedVoucher.value?['code'] == voucher['code']
-                        ? ThemeConfig.textGold
-                        : Colors.grey.shade700,
-                    width: 2,
-                  ),
-                ),
-                child: ListTile(
-                  leading: Icon(
-                    Icons.local_offer,
-                    color: ThemeConfig.textGold,
-                  ),
-                  title: CustomText(
-                    voucher['code'] as String,
-                    fontSize: 16,
-                    color: ThemeConfig.textGold,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  subtitle: CustomText(
-                    voucher['description'] as String,
-                    fontSize: 12,
-                    color: ThemeConfig.textWhite.withOpacity(0.7),
-                  ),
-                  trailing: _selectedVoucher.value?['code'] == voucher['code']
-                      ? Icon(
-                          Icons.check_circle,
-                          color: ThemeConfig.textGold,
-                        )
-                      : null,
-                  onTap: () {
-                    _selectedVoucher.value = voucher;
-                    Get.back();
-                    CustomSnackbar.success(
-                      title: 'Đã chọn voucher',
-                      message: 'Voucher ${voucher['code']} đã được áp dụng',
-                    );
-                  },
-                ),
-              );
-            }),
-            const SizedBox(height: 10),
-            TextButton(
-              onPressed: () => Get.back(),
-              child: const CustomText(
-                'Đóng',
-                fontSize: 16,
-                color: ThemeConfig.textWhite,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   /// Remove voucher
   void removeVoucher() {
-    _selectedVoucher.value = null;
+    selectedVoucher.value = DiscountEntity();
     CustomSnackbar.information(
       title: 'Đã xóa voucher',
       message: 'Voucher đã được gỡ bỏ',
@@ -210,11 +254,6 @@ class CheckoutConfirmationController extends GetxController {
 
   /// Edit shipping info
   void editShippingInfo() {
-    final nameController = TextEditingController(text: _shippingInfo['name']);
-    final phoneController = TextEditingController(text: _shippingInfo['phone']);
-    final addressController =
-        TextEditingController(text: _shippingInfo['address']);
-
     Get.dialog(
       AlertDialog(
         backgroundColor: Colors.black87,
@@ -311,10 +350,6 @@ class CheckoutConfirmationController extends GetxController {
                 );
                 return;
               }
-
-              _shippingInfo['name'] = nameController.text.trim();
-              _shippingInfo['phone'] = phoneController.text.trim();
-              _shippingInfo['address'] = addressController.text.trim();
               Get.back();
               CustomSnackbar.success(
                 title: 'Thành công',
@@ -408,10 +443,12 @@ class CheckoutConfirmationController extends GetxController {
     if (Get.isRegistered<UserController>()) {
       final userController = Get.find<UserController>();
       if (!userController.hasEnoughMagicPoints(totalAmount)) {
-        final shortage = totalAmount - (userController.user?.magicPoints ?? 0);
+        final shortage =
+            totalAmount - (userController.user.value.magicPoints ?? 0);
         CustomSnackbar.warning(
           title: 'Không đủ Magic Points',
-          message: 'Bạn cần nạp thêm ${shortage.toStringAsFixed(0)} MP để thanh toán đơn hàng này.',
+          message:
+              'Bạn cần nạp thêm ${shortage.toStringAsFixed(0)} MP để thanh toán đơn hàng này.',
         );
         // Navigate to deposit page
         Get.toNamed(
@@ -443,7 +480,7 @@ class CheckoutConfirmationController extends GetxController {
       //   items: cartItems,
       //   totalAmount: totalAmount,
       //   rewardPoints: rewardPoints,
-      //   voucher: _selectedVoucher.value,
+      //   voucher: selectedVoucher.value,
       //   shippingInfo: _shippingInfo,
       //   status: 'pending',
       //   createdAt: DateTime.now(),
@@ -492,14 +529,12 @@ class CheckoutConfirmationController extends GetxController {
       // Add Reward Points to user
       if (Get.isRegistered<UserController>()) {
         final userController = Get.find<UserController>();
-        final currentUser = userController.user;
-        if (currentUser != null) {
-          userController.updateUser(
-            currentUser.copyWith(
-              rewardPoints: currentUser.rewardPoints + rewardPoints.toInt(),
-            ),
-          );
-        }
+        final currentUser = userController.user.value;
+        userController.updateUser(
+          currentUser.copyWith(
+            rewardPoints: currentUser.rewardPoints! + rewardPoints.toInt(),
+          ),
+        );
       }
 
       // Clear cart
@@ -514,7 +549,7 @@ class CheckoutConfirmationController extends GetxController {
           'orderId': orderId,
           'totalAmount': totalAmount,
           'rewardPoints': rewardPoints,
-          'voucher': _selectedVoucher.value,
+          'voucher': selectedVoucher.value,
         },
       );
     } catch (e) {

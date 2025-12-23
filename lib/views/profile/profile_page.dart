@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
+import 'package:tarot_fe/models/user_entity.dart';
 import '../../../configs/styles/theme_config.dart';
 import '../../../models/user.dart';
 import '../../../widget/custom_text.dart';
@@ -11,7 +12,7 @@ import 'profile_controller.dart';
 class ProfileBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<ProfileController>(() => ProfileController());
+    Get.lazyPut<ProfileController>(() => ProfileController(Get.find()));
   }
 }
 
@@ -43,7 +44,7 @@ class ProfilePage extends GetView<ProfileController> {
         centerTitle: true,
       ),
       body: Obx(() {
-        if (controller.isLoading) {
+        if (controller.isLoading.value) {
           return Center(
             child: Lottie.asset(
               'assets/lottie/loading_ball.json',
@@ -55,16 +56,7 @@ class ProfilePage extends GetView<ProfileController> {
           );
         }
 
-        final user = controller.user;
-        if (user == null) {
-          return const Center(
-            child: CustomText(
-              'Không có dữ liệu người dùng',
-              fontSize: 16,
-              color: ThemeConfig.textWhite,
-            ),
-          );
-        }
+        final user = controller.user.value;
 
         return SingleChildScrollView(
           padding: const EdgeInsets.all(20),
@@ -100,7 +92,7 @@ class ProfilePage extends GetView<ProfileController> {
   }
 
   /// Build user header với avatar và thông tin cơ bản - copy từ trang user
-  Widget _buildUserHeader(User user) {
+  Widget _buildUserHeader(UserEntity user) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -148,7 +140,7 @@ class ProfilePage extends GetView<ProfileController> {
                   ],
                 ),
                 child: ClipOval(
-                  child: Image.asset(
+                  child: Image.network(
                     user.avatarPath ?? 'assets/icons/tarot_logo.jpg',
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
@@ -200,14 +192,14 @@ class ProfilePage extends GetView<ProfileController> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CustomText(
-                  user.name,
+                  user.name ?? "",
                   fontSize: 24,
                   color: ThemeConfig.textWhite,
                   fontWeight: FontWeight.bold,
                 ),
                 const SizedBox(height: 8),
                 CustomText(
-                  user.email,
+                  user.email ?? "",
                   fontSize: 14,
                   color: ThemeConfig.textWhite.withOpacity(0.8),
                 ),
@@ -228,14 +220,14 @@ class ProfilePage extends GetView<ProfileController> {
   }
 
   /// Build balance section với Magic Points và Reward Points
-  Widget _buildBalanceSection(User user) {
+  Widget _buildBalanceSection(UserEntity user) {
     return Row(
       children: [
         // Magic Points - điểm ma thuật (nạp tiền để mua)
         Expanded(
           child: _buildBalanceCard(
             title: 'Magic Points',
-            value: '${_formatNumber(user.magicPoints.toInt())}',
+            value: _formatNumber((user.magicPoints ?? 0).toInt()),
             icon: Icons.auto_awesome,
             color: ThemeConfig.secondaryColor,
           ),
@@ -247,7 +239,7 @@ class ProfilePage extends GetView<ProfileController> {
         Expanded(
           child: _buildBalanceCard(
             title: 'Reward Points',
-            value: '${_formatNumber(user.rewardPoints)}',
+            value: _formatNumber((user.rewardPoints ?? 0).toInt()),
             icon: Icons.card_giftcard,
             color: ThemeConfig.textGold,
           ),
@@ -306,7 +298,7 @@ class ProfilePage extends GetView<ProfileController> {
   }
 
   /// Build zodiac section
-  Widget _buildZodiacSection(User user) {
+  Widget _buildZodiacSection(UserEntity user) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -355,7 +347,7 @@ class ProfilePage extends GetView<ProfileController> {
                 ),
                 const SizedBox(height: 8),
                 CustomText(
-                  user.zodiacSign,
+                  user.zodiacSign ?? "",
                   fontSize: 20,
                   color: ThemeConfig.textGold,
                   fontWeight: FontWeight.bold,
@@ -369,7 +361,7 @@ class ProfilePage extends GetView<ProfileController> {
   }
 
   /// Build detail section với thông tin chi tiết
-  Widget _buildDetailSection(User user) {
+  Widget _buildDetailSection(UserEntity user) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -383,13 +375,13 @@ class ProfilePage extends GetView<ProfileController> {
         _buildDetailItem(
           icon: Icons.person,
           label: 'Tên',
-          value: user.name,
+          value: user.name ?? "",
           onTap: () => controller.editField('name'),
         ),
         _buildDetailItem(
           icon: Icons.email,
           label: 'Email',
-          value: user.email,
+          value: user.email ?? "",
           onTap: () => controller.editField('email'),
         ),
         if (user.phone != null)
@@ -402,7 +394,7 @@ class ProfilePage extends GetView<ProfileController> {
         _buildDetailItem(
           icon: Icons.star,
           label: 'Cung hoàng đạo',
-          value: user.zodiacSign,
+          value: user.zodiacSign ?? "",
           onTap: () => controller.editField('zodiac'),
         ),
       ],

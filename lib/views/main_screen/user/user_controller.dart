@@ -1,52 +1,74 @@
+import 'dart:developer' as developer;
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:tarot_fe/models/user_entity.dart';
 import '../../../configs/routes/route.dart';
 import '../../../models/user.dart';
+import '../../../providers/api_client.dart';
 import '../../../widget/custom_snackbar.dart';
 
 class UserController extends GetxController {
+
+  final ApiClient apiClient;
+  final isLoading = false.obs;
+  final errorMessage = "".obs;
+  final userId = "6943d3e9905d10bd4b078aad";
   // User data
-  final _user = Rx<User?>(null);
+  final Rx<UserEntity >user = Rx<UserEntity>(UserEntity());
 
-  User? get user => _user.value;
-
-  // Loading state
-  final _isLoading = false.obs;
-
-  bool get isLoading => _isLoading.value;
+  UserController(this.apiClient);
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
-    _loadUserData();
+    await fetchUserDetail();
   }
 
-  /// Load user data (tạm thời dùng dữ liệu mẫu)
-  void _loadUserData() {
-    _isLoading.value = true;
+  Future<void> fetchUserDetail() async {
+    developer.log(
+      'Fetching user detail',
+      name: 'userDetailController',
+      error: {'userId': userId},
+    );
 
-    // Simulate API call delay
-    Future.delayed(const Duration(milliseconds: 500), () {
-      // Dữ liệu mẫu với 100000 điểm mặc định
-      _user.value = const User(
-        id: '1',
-        name: 'Nguyễn Văn A',
-        email: 'nguyenvana@example.com',
-        phone: '+84 123 456 789',
-        magicPoints: 100000.0, // Magic Points - điểm ma thuật (mặc định 100000)
-        rewardPoints: 100000, // Reward Points - điểm tích lũy/thưởng (mặc định 100000)
-        zodiacSign: 'Bạch Dương',
-        avatarPath: 'assets/icons/tarot_logo.jpg',
-        createdAt: null,
-        updatedAt: null,
+    try {
+      isLoading.value = true;
+      errorMessage.value = '';
+
+      final response = await apiClient.getUserById(userId);
+
+      if (response == null) {
+        throw Exception('user detail response is null');
+      }
+
+      user.value = response;
+
+      developer.log(
+        'Fetch user detail success',
+        name: 'userDetailController',
       );
-      _isLoading.value = false;
-    });
+    } catch (e, stackTrace) {
+      errorMessage.value = 'Không thể tải chi tiết sản phẩm';
+
+      developer.log(
+        'Fetch user detail failed',
+        name: 'userDetailController',
+        error: e,
+        stackTrace: stackTrace,
+      );
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   /// Navigate to profile page
   void navigateToProfile() {
     Get.toNamed(Routes.profile.sp);
+  }
+
+  void viewCardHistory(){
+
   }
 
   /// Logout user
@@ -129,9 +151,9 @@ class UserController extends GetxController {
     );
   }
 
-  /// View card history
-  void viewCardHistory() {
-    Get.toNamed('/card-draw-history');
+  /// View user history
+  void viewuserHistory() {
+    Get.toNamed('/user-draw-history');
   }
 
   /// View transaction history
@@ -150,32 +172,28 @@ class UserController extends GetxController {
   }
 
   /// Update user data
-  void updateUser(User updatedUser) {
-    _user.value = updatedUser;
+  void updateUser(UserEntity updatedUser) {
+    user.value = updatedUser;
   }
 
   /// Add magic points (nạp tiền)
   void addMagicPoints(double amount) {
-    if (_user.value != null) {
-      _user.value = _user.value!.copyWith(
-        magicPoints: _user.value!.magicPoints + amount,
-      );
+    user.value = user.value.copyWith(
+      magicPoints: user.value.magicPoints! + amount,
+    );
     }
-  }
 
   /// Subtract magic points (trừ điểm)
   void subtractMagicPoints(double amount) {
-    if (_user.value != null) {
-      final newAmount = (_user.value!.magicPoints - amount).clamp(0.0, double.infinity);
-      _user.value = _user.value!.copyWith(
-        magicPoints: newAmount,
-      );
+    final newAmount = (user.value.magicPoints! - amount).clamp(0.0, double.infinity);
+    user.value = user.value.copyWith(
+      magicPoints: newAmount,
+    );
     }
-  }
 
   /// Check if user has enough magic points
   bool hasEnoughMagicPoints(double amount) {
-    return _user.value != null && _user.value!.magicPoints >= amount;
+    return user.value.magicPoints! >= amount;
   }
 
   /// Navigate to deposit page

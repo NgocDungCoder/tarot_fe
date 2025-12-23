@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
+import 'package:tarot_fe/models/user_entity.dart';
 import '../../../configs/routes/route.dart';
 import '../../../configs/styles/theme_config.dart';
 import '../../../models/user.dart';
@@ -11,7 +12,7 @@ import 'user_controller.dart';
 class UserBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<UserController>(() => UserController());
+    Get.lazyPut<UserController>(() => UserController(Get.find()));
   }
 }
 
@@ -24,7 +25,7 @@ class UserPage extends GetView<UserController> {
   Widget build(BuildContext context) {
     return SafeArea(
     child: Obx(() {
-      if (controller.isLoading) {
+      if (controller.isLoading.value) {
         return Center(
           child: Lottie.asset(
             'assets/lottie/loading_ball.json',
@@ -36,16 +37,7 @@ class UserPage extends GetView<UserController> {
         );
       }
 
-      final user = controller.user;
-      if (user == null) {
-        return const Center(
-          child: CustomText(
-            'Không có dữ liệu người dùng',
-            fontSize: 16,
-            color: ThemeConfig.textWhite,
-          ),
-        );
-      }
+      final user = controller.user.value;
 
       return SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -96,7 +88,7 @@ class UserPage extends GetView<UserController> {
   }
 
   /// Build user header với avatar và thông tin cơ bản - có thể click để mở profile
-  Widget _buildUserHeader(User user) {
+  Widget _buildUserHeader(UserEntity user) {
     return GestureDetector(
       onTap: controller.navigateToProfile,
       child: Container(
@@ -144,7 +136,7 @@ class UserPage extends GetView<UserController> {
                 ],
               ),
               child: ClipOval(
-                child: Image.asset(
+                child: Image.network(
                   user.avatarPath ?? 'assets/icons/tarot_logo.jpg',
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
@@ -160,23 +152,23 @@ class UserPage extends GetView<UserController> {
                 ),
               ),
             ),
-            
+
             const SizedBox(width: 20),
-            
+
             // Thông tin người dùng
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   CustomText(
-                    user.name,
+                    user.name ?? "",
                     fontSize: 24,
                     color: ThemeConfig.textWhite,
                     fontWeight: FontWeight.bold,
                   ),
                   const SizedBox(height: 8),
                   CustomText(
-                    user.email,
+                    user.email ?? "",
                     fontSize: 14,
                     color: ThemeConfig.textWhite.withOpacity(0.8),
                   ),
@@ -191,7 +183,7 @@ class UserPage extends GetView<UserController> {
                 ],
               ),
             ),
-            
+
             // Icon mũi tên để chỉ ra có thể click
             Icon(
               Icons.arrow_forward_ios,
@@ -205,7 +197,7 @@ class UserPage extends GetView<UserController> {
   }
 
   /// Build balance section với Magic Points và Reward Points
-  Widget _buildBalanceSection(User user) {
+  Widget _buildBalanceSection(UserEntity user) {
     return Column(
       children: [
         Row(
@@ -214,19 +206,19 @@ class UserPage extends GetView<UserController> {
             Expanded(
               child: _buildBalanceCard(
                 title: 'Magic Points',
-                value: '${_formatNumber(user.magicPoints.toInt())}',
+                value: _formatNumber((user.magicPoints?? 0).toInt()),
                 icon: Icons.auto_awesome,
                 color: ThemeConfig.secondaryColor,
               ),
             ),
-            
+
             const SizedBox(width: 15),
-            
+
             // Reward Points - điểm tích lũy/thưởng
             Expanded(
               child: _buildBalanceCard(
                 title: 'Reward Points',
-                value: '${_formatNumber(user.rewardPoints)}',
+                value: _formatNumber((user.rewardPoints?? 0).toInt()),
                 icon: Icons.card_giftcard,
                 color: ThemeConfig.textGold,
               ),
@@ -311,7 +303,7 @@ class UserPage extends GetView<UserController> {
   }
 
   /// Build zodiac section
-  Widget _buildZodiacSection(User user) {
+  Widget _buildZodiacSection(UserEntity user) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -360,7 +352,7 @@ class UserPage extends GetView<UserController> {
                 ),
                 const SizedBox(height: 8),
                 CustomText(
-                  user.zodiacSign,
+                  user.zodiacSign ?? "",
                   fontSize: 20,
                   color: ThemeConfig.textGold,
                   fontWeight: FontWeight.bold,

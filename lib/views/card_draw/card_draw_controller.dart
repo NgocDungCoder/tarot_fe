@@ -259,7 +259,7 @@ class CardDrawController extends GetxController {
   final _zoomedCardIndex = Rx<int?>(null);
 
   int? get zoomedCardIndex => _zoomedCardIndex.value;
-  
+
   void _generateDisplayCards() {
     _displayCards.addAll(List.filled(5, selectedCard.value));
   }

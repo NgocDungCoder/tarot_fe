@@ -1,11 +1,14 @@
+import 'package:tarot_fe/models/address_entity.dart';
 import 'package:tarot_fe/models/banner_entity.dart';
 import 'package:tarot_fe/models/blog_entity.dart';
 import 'package:tarot_fe/models/cart_entity.dart';
 import 'package:tarot_fe/models/cart_item_entity.dart';
 import 'package:tarot_fe/models/category_entity.dart';
+import 'package:tarot_fe/models/discount_entity.dart';
 import 'package:tarot_fe/models/gift_entity.dart';
 import 'package:tarot_fe/models/paging_res_entity.dart';
 import 'package:tarot_fe/models/tarot_card_entity.dart';
+import 'package:tarot_fe/models/user_entity.dart';
 
 import '../configs/interfaces/api_client_interface.dart';
 import '../configs/interfaces/http_interface.dart';
@@ -36,6 +39,18 @@ class ApiClient extends IApiClient {
           (dynamic json) => ApiResponseEntity<TarotCardEntity>.fromJson(
         json,
             (data) => TarotCardEntity.fromJson(data),
+      ).data,
+    );
+  }
+
+  Future<UserEntity?> getUserById(String userId) async {
+    final res = await request(ApiMethod.get, '/users/$userId');
+
+    return await parseJsonUtil(
+      res,
+          (dynamic json) => ApiResponseEntity<UserEntity>.fromJson(
+        json,
+            (data) => UserEntity.fromJson(data),
       ).data,
     );
   }
@@ -226,6 +241,64 @@ class ApiClient extends IApiClient {
         (dynamic data) => PagingResEntity<CartEntity>.fromJson(
           data,
           (item) => CartEntity.fromJson(item),
+        ),
+      ),
+    );
+
+    return apiResponse.data;
+  }
+
+  Future<AddressEntity?> getAddressOfUser({
+    int page = 1,
+    int limit = 1,
+    String? userId,
+  }) async {
+    final res = await request(
+      ApiMethod.get,
+      '/addresses',
+      {
+        "page": page,
+        "limit": limit,
+        "search": userId,
+      },
+    );
+
+    //viết trung gian
+    final apiResponse = await parseJsonUtil(
+      res,
+          (dynamic json) => ApiResponseEntity<PagingResEntity<AddressEntity>>.fromJson(
+        json,
+            (dynamic data) => PagingResEntity<AddressEntity>.fromJson(
+          data,
+              (item) => AddressEntity.fromJson(item),
+        ),
+      ),
+    );
+
+    return apiResponse.data?.docs?.first;
+  }
+
+  Future<PagingResEntity<DiscountEntity>?> getDiscounts({
+    int page = 1,
+    int limit = 15,
+  }) async {
+    final res = await request(
+      ApiMethod.get,
+      '/discounts',
+      {
+        "page": page,
+        "limit": limit,
+      },
+    );
+
+    //viết trung gian
+    final apiResponse = await parseJsonUtil(
+      res,
+          (dynamic json) => ApiResponseEntity<PagingResEntity<DiscountEntity>>.fromJson(
+        json,
+            (dynamic data) => PagingResEntity<DiscountEntity>.fromJson(
+          data,
+              (item) => DiscountEntity.fromJson(item),
         ),
       ),
     );

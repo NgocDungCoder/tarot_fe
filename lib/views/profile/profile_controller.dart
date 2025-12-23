@@ -1,51 +1,67 @@
+import 'dart:developer' as developer;
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../models/user.dart';
 import '../../../widget/custom_snackbar.dart';
+import '../../models/user_entity.dart';
+import '../../providers/api_client.dart';
 
 class ProfileController extends GetxController {
   // User data
-  final _user = Rx<User?>(null);
+  final ApiClient apiClient;
+  final isLoading = false.obs;
+  final errorMessage = "".obs;
+  final userId = "6943d3e9905d10bd4b078aad";
+  // User data
+  final Rx<UserEntity >user = Rx<UserEntity>(UserEntity());
 
-  User? get user => _user.value;
-
-  // Loading state
-  final _isLoading = false.obs;
-
-  bool get isLoading => _isLoading.value;
-
-  // Edit mode
   final _isEditMode = false.obs;
-
   bool get isEditMode => _isEditMode.value;
 
+  ProfileController(this.apiClient);
+  
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
-    _loadUserData();
+    await fetchUserDetail();
   }
 
-  /// Load user data (tạm thời dùng dữ liệu mẫu)
-  void _loadUserData() {
-    _isLoading.value = true;
+  Future<void> fetchUserDetail() async {
+    developer.log(
+      'Fetching user detail',
+      name: 'userDetailController',
+      error: {'userId': userId},
+    );
 
-    // Simulate API call delay
-    Future.delayed(const Duration(milliseconds: 500), () {
-      // Dữ liệu mẫu
-      _user.value = const User(
-        id: '1',
-        name: 'Nguyễn Văn A',
-        email: 'nguyenvana@example.com',
-        phone: '+84 123 456 789',
-        magicPoints: 1250.0, // Magic Points - điểm ma thuật
-        rewardPoints: 3500, // Reward Points - điểm tích lũy/thưởng
-        zodiacSign: 'Bạch Dương',
-        avatarPath: 'assets/icons/tarot_logo.jpg',
-        createdAt: null,
-        updatedAt: null,
+    try {
+      isLoading.value = true;
+      errorMessage.value = '';
+
+      final response = await apiClient.getUserById(userId);
+
+      if (response == null) {
+        throw Exception('user detail response is null');
+      }
+
+      user.value = response;
+
+      developer.log(
+        'Fetch user detail success',
+        name: 'userDetailController',
       );
-      _isLoading.value = false;
-    });
+    } catch (e, stackTrace) {
+      errorMessage.value = 'Không thể tải chi tiết sản phẩm';
+
+      developer.log(
+        'Fetch user detail failed',
+        name: 'userDetailController',
+        error: e,
+        stackTrace: stackTrace,
+      );
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   /// Edit profile
@@ -87,24 +103,24 @@ class ProfileController extends GetxController {
 
   /// Edit field - mở dialog để chỉnh sửa từng trường
   void editField(String field) {
-    final user = _user.value;
-    if (user == null) return;
+    final _user = user.value;
+    if (_user == null) return;
 
     final TextEditingController textController = TextEditingController();
     String currentValue = '';
 
     switch (field) {
       case 'name':
-        currentValue = user.name;
+        currentValue = _user.name ?? "";
         break;
       case 'email':
-        currentValue = user.email;
+        currentValue = _user.email ?? "";
         break;
       case 'phone':
-        currentValue = user.phone ?? '';
+        currentValue = _user.phone ?? '';
         break;
       case 'zodiac':
-        currentValue = user.zodiacSign;
+        currentValue = _user.zodiacSign ?? "";
         break;
     }
 
@@ -208,10 +224,9 @@ class ProfileController extends GetxController {
 
   /// Update user field
   void _updateUserField(String field, String value) {
-    final currentUser = _user.value;
-    if (currentUser == null) return;
+    final currentUser = user.value;
 
-    User updatedUser;
+    UserEntity updatedUser;
     switch (field) {
       case 'name':
         updatedUser = currentUser.copyWith(name: value);
@@ -229,7 +244,7 @@ class ProfileController extends GetxController {
         return;
     }
 
-    _user.value = updatedUser;
+    user.value = updatedUser;
     // TODO: Call API to save user data
   }
 

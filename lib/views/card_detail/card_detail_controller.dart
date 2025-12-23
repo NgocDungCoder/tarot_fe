@@ -47,6 +47,25 @@ class CardDetailController extends GetxController {
     _isCardFlipped.value = !_isCardFlipped.value;
   }
 
+
+
+  @override
+  void onInit() {
+    super.onInit();
+
+    // Pause MainController video khi vào detail page
+    _pauseMainVideo();
+
+    // Initialize video background ngay lập tức
+    _initializeVideo();
+
+    // Trigger animation sau khi Hero animation hoàn thành
+    // Delay một chút để Hero animation mượt mà hơn
+    Future.delayed(const Duration(milliseconds: 500), () {
+      _showCardDetail.value = true;
+    });
+  }
+
   Future<void> fetchCardDetail() async {
     developer.log(
       'Fetching card detail',
@@ -82,23 +101,6 @@ class CardDetailController extends GetxController {
     } finally {
       isLoading.value = false;
     }
-  }
-
-  @override
-  void onInit() {
-    super.onInit();
-
-    // Pause MainController video khi vào detail page
-    _pauseMainVideo();
-
-    // Initialize video background ngay lập tức
-    _initializeVideo();
-
-    // Trigger animation sau khi Hero animation hoàn thành
-    // Delay một chút để Hero animation mượt mà hơn
-    Future.delayed(const Duration(milliseconds: 500), () {
-      _showCardDetail.value = true;
-    });
   }
 
   /// Pause MainController video để tránh conflict

@@ -13,13 +13,15 @@ import '../../../widget/custom_snackbar.dart';
 class CartController extends GetxController {
   // Cart items list
   final _cartItems = <CartItemEntity>[].obs;
-  final errorMessage = "".obs;
 
   List<CartItemEntity> get cartItems => _cartItems;
   final cart = Rxn<CartEntity>();
   final ApiClient apiClient;
   final isLoading = false.obs;
+  final errorMessage = "".obs;
   final userIdTest = "6943d3e9905d10bd4b078aad";
+
+
   Timer? _debounceTimer;
 
   CartController(this.apiClient) {
@@ -74,7 +76,6 @@ class CartController extends GetxController {
     try {
       isLoading.value = true;
       errorMessage.value = '';
-      print("===================> $cartId");
       final response = await apiClient.getCartItems(cartId: cartId);
 
       if (response == null) {
