@@ -1,6 +1,7 @@
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:lottie/lottie.dart';
 import 'package:tarot_fe/views/splash/splash_controller.dart';
 import 'package:video_player/video_player.dart';
 import 'package:tarot_fe/widget/custom_text.dart';
@@ -139,10 +140,14 @@ class _SplashPageState extends State<SplashPage>
           /// Background video or fallback
           Positioned.fill(
             child: _isInitializing
-                ? const Center(
-                    child: CircularProgressIndicator(
-                      color: Colors.green,
-                    ),
+                ? Center(
+              child: Lottie.asset(
+                'assets/lottie/loading_ball.json',
+                repeat: true,
+                height: 70,
+                width: 70,
+                fit: BoxFit.contain,
+              ),
                   )
                 : _hasVideoError
                     ? Stack(

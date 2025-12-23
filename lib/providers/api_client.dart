@@ -1,9 +1,11 @@
 import 'package:tarot_fe/models/banner_entity.dart';
+import 'package:tarot_fe/models/blog_entity.dart';
 import 'package:tarot_fe/models/cart_entity.dart';
 import 'package:tarot_fe/models/cart_item_entity.dart';
 import 'package:tarot_fe/models/category_entity.dart';
 import 'package:tarot_fe/models/gift_entity.dart';
 import 'package:tarot_fe/models/paging_res_entity.dart';
+import 'package:tarot_fe/models/tarot_card_entity.dart';
 
 import '../configs/interfaces/api_client_interface.dart';
 import '../configs/interfaces/http_interface.dart';
@@ -22,6 +24,30 @@ class ApiClient extends IApiClient {
       (dynamic json) => ApiResponseEntity<ProductId>.fromJson(
         json,
         (data) => ProductId.fromJson(data),
+      ).data,
+    );
+  }
+
+  Future<TarotCardEntity?> getCardDetailById(String cardId) async {
+    final res = await request(ApiMethod.get, '/cards/$cardId');
+
+    return await parseJsonUtil(
+      res,
+          (dynamic json) => ApiResponseEntity<TarotCardEntity>.fromJson(
+        json,
+            (data) => TarotCardEntity.fromJson(data),
+      ).data,
+    );
+  }
+
+  Future<TarotCardEntity?> getRandomCard() async {
+    final res = await request(ApiMethod.get, '/cards/random-card');
+
+    return await parseJsonUtil(
+      res,
+          (dynamic json) => ApiResponseEntity<TarotCardEntity>.fromJson(
+        json,
+            (data) => TarotCardEntity.fromJson(data),
       ).data,
     );
   }
@@ -64,8 +90,18 @@ class ApiClient extends IApiClient {
     return apiResponse.data;
   }
 
-  Future<PagingResEntity<GiftEntity>?> getGifts() async {
-    final res = await request(ApiMethod.get, '/gifts');
+  Future<PagingResEntity<GiftEntity>?> getGifts({
+    int page = 1,
+    int limit = 10,
+    String? search,
+    String? categoryId,
+  }) async {
+    final res = await request(ApiMethod.get, '/gifts', {
+      "page": page,
+      "limit": limit,
+      "search": search,
+      "categoryId": categoryId
+    });
 
     //viết trung gian
     final apiResponse = await parseJsonUtil(
@@ -101,6 +137,70 @@ class ApiClient extends IApiClient {
     );
 
     return apiResponse;
+  }
+
+  Future<PagingResEntity<BlogEntity>?> getBlogs({
+    int page = 1,
+    int limit = 10,
+    String status = "published",
+    bool? isFeatured,
+    String? search,
+    String? category,
+    String? tag
+}) async {
+    final res = await request(ApiMethod.get, '/blogs', {
+      "status": status,
+      "isFeatured": isFeatured,
+      "search": search,
+      "category": category,
+      "tag": tag
+    });
+
+    //viết trung gian
+    final apiResponse = await parseJsonUtil(
+      res,
+          (dynamic json) =>
+      ApiResponseEntity<PagingResEntity<BlogEntity>>.fromJson(
+        json,
+            (dynamic data) => PagingResEntity<BlogEntity>.fromJson(
+          data,
+              (item) => BlogEntity.fromJson(item),
+        ),
+      ),
+    );
+
+    return apiResponse.data;
+  }
+
+  Future<List<TarotCardEntity>> getTarotCards({
+    int page = 1,
+    int limit = 6,
+    String? search,
+    String? arcana,
+    String? suit
+  }) async {
+    final res = await request(ApiMethod.get, '/cards', {
+      "page": page,
+      "limit": limit,
+      "search": search,
+      "arcana": arcana,
+      "suit": suit
+    });
+
+    //viết trung gian
+    final apiResponse = await parseJsonUtil(
+      res,
+          (dynamic json) =>
+      ApiResponseEntity<PagingResEntity<TarotCardEntity>>.fromJson(
+        json,
+            (dynamic data) => PagingResEntity<TarotCardEntity>.fromJson(
+          data,
+              (item) => TarotCardEntity.fromJson(item),
+        ),
+      ),
+    );
+
+    return apiResponse.data?.docs ?? [];
   }
 
   Future<PagingResEntity<CartEntity>?> getCartOfUser({

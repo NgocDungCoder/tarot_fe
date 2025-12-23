@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get/get_connect/http/src/utils/utils.dart';
+import 'package:tarot_fe/configs/routes/route.dart';
+import 'package:tarot_fe/models/blog_entity.dart';
+import 'package:tarot_fe/models/tarot_card_entity.dart';
+import 'package:tarot_fe/views/main_screen/explore/components/blog_item_widget.dart';
+import 'package:tarot_fe/views/main_screen/explore/components/card_item_widget.dart';
 import '../../../configs/styles/theme_config.dart';
 import '../../../models/tarot_card.dart';
 import '../../../widget/custom_text.dart';
@@ -9,7 +15,7 @@ import 'explore_controller.dart';
 class ExploreBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<ExploreController>(() => ExploreController());
+    Get.lazyPut<ExploreController>(() => ExploreController(Get.find()));
   }
 }
 
@@ -20,11 +26,11 @@ class ExplorePage extends GetView<ExploreController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-    body: SafeArea(
-      child:
-      SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
+      body: SafeArea(
+          child: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Obx(() {
+          return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Header
@@ -55,7 +61,7 @@ class ExplorePage extends GetView<ExploreController> {
               _buildCardSection(
                 title: 'Cup',
                 cards: controller.cupCards,
-                cardType: 'Cup',
+                cardType: 'Cups',
               ),
 
               const SizedBox(height: 30),
@@ -64,7 +70,7 @@ class ExplorePage extends GetView<ExploreController> {
               _buildCardSection(
                 title: 'Wand',
                 cards: controller.wandCards,
-                cardType: 'Wand',
+                cardType: 'Wands',
               ),
 
               const SizedBox(height: 30),
@@ -73,22 +79,28 @@ class ExplorePage extends GetView<ExploreController> {
               _buildCardSection(
                 title: 'Sword',
                 cards: controller.swordCards,
-                cardType: 'Sword',
+                cardType: 'Swords',
               ),
 
               const SizedBox(height: 30),
-            ],
-          ),
-        )
-      ),
 
-        );
+              _buildCardSection(
+                title: 'Pentacle',
+                cards: controller.pentacleCards,
+                cardType: 'Pentacles',
+              ),
+              const SizedBox(height: 30),
+            ],
+          );
+        }),
+      )),
+    );
   }
 
   /// Build card section với GridView 2x2 và nút "Xem thêm tất cả"
   Widget _buildCardSection({
     required String title,
-    required List<TarotCard> cards,
+    required List<TarotCardEntity> cards,
     required String cardType,
   }) {
     if (cards.isEmpty) {
@@ -109,7 +121,9 @@ class ExplorePage extends GetView<ExploreController> {
               fontWeight: FontWeight.bold,
             ),
             TextButton(
-              onPressed: () => controller.viewAllCards(cardType),
+              onPressed: () => Get.toNamed(Routes.viewAllCards.p, arguments: {
+                "cardType": cardType,
+              }),
               child: const CustomText(
                 'View All',
                 fontSize: 14,
@@ -130,93 +144,17 @@ class ExplorePage extends GetView<ExploreController> {
             mainAxisSpacing: 15,
             childAspectRatio: 0.58, // Width/Height ratio
           ),
-          itemCount: cards.length > 4 ? 4 : cards.length, // Chỉ hiển thị 4 lá đầu
+          itemCount: cards.length > 4 ? 4 : cards.length,
+          // Chỉ hiển thị 4 lá đầu
           itemBuilder: (context, index) {
             final card = cards[index];
-            return _buildCardItem(card);
+            return CardItemWidget(card: card);
           },
         ),
       ],
     );
   }
 
-  /// Build card item widget
-  Widget _buildCardItem(TarotCard card) {
-    return GestureDetector(
-      onTap: () {
-        // Navigate to card detail page với Hero animation
-        Get.toNamed(
-          '/card-detail',
-          arguments: card,
-        );
-      },
-      child: Hero(
-        tag: 'card_${card.id}',
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: ThemeConfig.textGold.withOpacity(0.5),
-              width: 1,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.3),
-                blurRadius: 8,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                // Card image
-                Image.asset(
-                  card.imagePath,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      color: Colors.deepPurple.withOpacity(0.3),
-                      child: const Center(
-                        child: Icon(
-                          Icons.image_not_supported,
-                          color: ThemeConfig.textGold,
-                          size: 40,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-                // Gradient overlay để text dễ đọc
-                Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  child: Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.transparent,
-                          Colors.black.withOpacity(0.8),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// Build blog section - danh sách blog
   Widget _buildBlogSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -225,16 +163,17 @@ class ExplorePage extends GetView<ExploreController> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const CustomText(
-              'Blog',
-              fontSize: 24,
-              color: ThemeConfig.textGold,
-              fontWeight: FontWeight.bold,
+            InkWell(
+              onTap: controller.fetchBlogs,
+              child: const CustomText(
+                'Blog',
+                fontSize: 24,
+                color: ThemeConfig.textGold,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             TextButton(
-              onPressed: () {
-                // TODO: Navigate to blog list page
-              },
+              onPressed: () => Get.toNamed(Routes.viewAllBlogs.p),
               child: const CustomText(
                 'View All',
                 fontSize: 14,
@@ -254,110 +193,18 @@ class ExplorePage extends GetView<ExploreController> {
               return const SizedBox.shrink();
             }
 
-            return ListView.builder(
+            return ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: blogs.length,
               itemBuilder: (context, index) {
                 final blog = blogs[index];
-                return _buildBlogItem(blog);
+                return BlogItemWidget(blog: blog);
               },
+              separatorBuilder: (_, __) => SizedBox(width: 15),
             );
           }),
         ),
       ],
     );
-  }
-
-  /// Build blog item widget
-  Widget _buildBlogItem(Map<String, dynamic> blog) {
-    return GestureDetector(
-      onTap: () {
-        // TODO: Navigate to blog detail
-      },
-      child: Container(
-        width: 280,
-        margin: const EdgeInsets.only(right: 15),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(15),
-          border: Border.all(
-            color: ThemeConfig.textGold.withOpacity(0.3),
-            width: 1,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.3),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(15),
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              // Blog image
-              Image.asset(
-                blog['imagePath'] ?? 'assets/images/blog1.jpg',
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    color: ThemeConfig.deepPurple.withOpacity(0.5),
-                    child: const Center(
-                      child: Icon(
-                        Icons.image_not_supported,
-                        color: ThemeConfig.textGold,
-                        size: 40,
-                      ),
-                    ),
-                  );
-                },
-              ),
-              // Gradient overlay
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: Container(
-                  padding: const EdgeInsets.all(15),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.transparent,
-                        Colors.black.withOpacity(0.9),
-                      ],
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      CustomText(
-                        blog['title'] ?? 'Blog Title',
-                        fontSize: 18,
-                        color: ThemeConfig.textWhite,
-                        fontWeight: FontWeight.bold,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 4),
-                      CustomText(
-                        blog['description'] ?? 'Blog description',
-                        fontSize: 12,
-                        color: ThemeConfig.textWhite.withOpacity(0.8),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-      );
   }
 }

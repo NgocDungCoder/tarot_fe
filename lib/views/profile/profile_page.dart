@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:lottie/lottie.dart';
 import '../../../configs/styles/theme_config.dart';
 import '../../../models/user.dart';
 import '../../../widget/custom_text.dart';
@@ -43,9 +44,13 @@ class ProfilePage extends GetView<ProfileController> {
       ),
       body: Obx(() {
         if (controller.isLoading) {
-          return const Center(
-            child: CircularProgressIndicator(
-              color: ThemeConfig.textGold,
+          return Center(
+            child: Lottie.asset(
+              'assets/lottie/loading_ball.json',
+              repeat: true,
+              height: 70,
+              width: 70,
+              fit: BoxFit.contain,
             ),
           );
         }

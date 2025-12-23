@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:lottie/lottie.dart';
 import 'package:tarot_fe/models/gift_entity.dart';
 import '../../../configs/styles/theme_config.dart';
 import '../../../widget/custom_text.dart';
@@ -21,75 +22,81 @@ class RedeemGiftPage extends GetView<RedeemGiftController> {
     return VideoBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          onPressed: () => Get.back(),
-          icon: const Icon(
-            Icons.arrow_back,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            onPressed: () => Get.back(),
+            icon: const Icon(
+              Icons.arrow_back,
+              color: ThemeConfig.textGold,
+              size: 28,
+            ),
+          ),
+          title: const CustomText(
+            'Đổi quà tặng',
+            fontSize: 24,
             color: ThemeConfig.textGold,
-            size: 28,
+            fontWeight: FontWeight.bold,
+          ),
+          centerTitle: true,
+        ),
+        body: SafeArea(
+          child: Column(
+            children: [
+              // User reward points info
+              _buildRewardPointsHeader(),
+
+              // Search and filter section
+              _buildSearchAndFilter(),
+
+              // Gifts list
+              Expanded(
+                child: Obx(() {
+                  if (controller.isLoading.value) {
+                    return Center(
+                      child: Lottie.asset(
+                        'assets/lottie/loading_ball.json',
+                        repeat: true,
+                        height: 70,
+                        width: 70,
+                        fit: BoxFit.contain,
+                      ),
+                    );
+                  }
+
+                  final gifts = controller.gifts;
+                  if (controller.gifts.isEmpty) {
+                    return Center(
+                      child: CustomText(
+                        'Không tìm thấy quà tặng nào',
+                        fontSize: 16,
+                        color: ThemeConfig.textWhite.withOpacity(0.7),
+                      ),
+                    );
+                  }
+
+                  return GridView.builder(
+                    padding: const EdgeInsets.all(16),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: 0.75,
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 16,
+                    ),
+                    itemCount: gifts.length,
+                    itemBuilder: (context, index) {
+                      return _buildGiftCard(gifts[index]);
+                    },
+                  );
+                }),
+              ),
+            ],
           ),
         ),
-        title: const CustomText(
-          'Đổi quà tặng',
-          fontSize: 24,
-          color: ThemeConfig.textGold,
-          fontWeight: FontWeight.bold,
-        ),
-        centerTitle: true,
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // User reward points info
-            _buildRewardPointsHeader(),
-
-            // Search and filter section
-            _buildSearchAndFilter(),
-
-            // Gifts list
-            Expanded(
-              child: Obx(() {
-                if (controller.isLoading.value) {
-                  return const Center(
-                    child: CircularProgressIndicator(
-                      color: ThemeConfig.textGold,
-                    ),
-                  );
-                }
-
-                final gifts = controller.filteredGifts;
-                if (gifts.isEmpty) {
-                  return Center(
-                    child: CustomText(
-                      'Không tìm thấy quà tặng nào',
-                      fontSize: 16,
-                      color: ThemeConfig.textWhite.withOpacity(0.7),
-                    ),
-                  );
-                }
-
-                return GridView.builder(
-                  padding: const EdgeInsets.all(16),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 0.75,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                  ),
-                  itemCount: gifts.length,
-                  itemBuilder: (context, index) {
-                    return _buildGiftCard(gifts[index]);
-                  },
-                );
-              }),
-            ),
-          ],
-        ),
-      ),
-    ),);
+    );
   }
 
   /// Build reward points header
@@ -203,7 +210,8 @@ class RedeemGiftPage extends GetView<RedeemGiftController> {
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: controller.categories.map((category) {
-                    final isSelected = controller.selectedCategory == category.name;
+                    final isSelected =
+                        controller.selectedCategory == category.name;
                     return Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: FilterChip(
@@ -216,8 +224,9 @@ class RedeemGiftPage extends GetView<RedeemGiftController> {
                               isSelected ? FontWeight.bold : FontWeight.normal,
                         ),
                         selected: isSelected,
-                        onSelected: (_) {
-                          controller.setCategory(category.name ?? "");
+                        onSelected: (_) async {
+                          controller.setCategory(category);
+                          await controller.fetchGifts();
                         },
                         selectedColor: ThemeConfig.textGold,
                         backgroundColor: Colors.black.withOpacity(0.6),
@@ -235,7 +244,6 @@ class RedeemGiftPage extends GetView<RedeemGiftController> {
       ),
     );
   }
-
 
   /// Build gift card
   Widget _buildGiftCard(GiftEntity gift) {
@@ -437,7 +445,7 @@ class RedeemGiftPage extends GetView<RedeemGiftController> {
                                 '${controller.currentRewardPoints} RP',
                                 fontSize: 20,
                                 color: controller.currentRewardPoints >=
-                                    (gift.price ?? 0)
+                                        (gift.price ?? 0)
                                     ? Colors.green
                                     : Colors.red,
                                 fontWeight: FontWeight.bold,

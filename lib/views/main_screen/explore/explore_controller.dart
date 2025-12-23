@@ -1,7 +1,28 @@
+import 'dart:developer' as developer;
+
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:tarot_fe/models/blog_entity.dart';
+import 'package:tarot_fe/models/tarot_card_entity.dart';
+import 'package:tarot_fe/providers/api_client.dart';
 import '../../../models/tarot_card.dart';
 
+enum Arcana {
+  majorArcana('Major Arcana'),
+  minorArcana('Minor Arcana');
+
+  final String label;
+
+  const Arcana(this.label);
+}
+
+enum SuitCard { sword, cup, pentacle, wand }
+
 class ExploreController extends GetxController {
+  final ApiClient apiClient;
+  final isLoading = false.obs;
+  final errorMessage = "".obs;
+
   // Dữ liệu ảo cho các loại lá bài
   final List<TarotCard> _majorCards = [];
   final List<TarotCard> _cupCards = [];
@@ -10,258 +31,112 @@ class ExploreController extends GetxController {
 
   // Blog list - sử dụng RxList để reactive
   final _blogs = <Map<String, dynamic>>[].obs;
+  final RxList<BlogEntity> blogs = <BlogEntity>[].obs;
+  final RxList<TarotCardEntity> majorCards = <TarotCardEntity>[].obs;
+  final RxList<TarotCardEntity> wandCards = <TarotCardEntity>[].obs;
+  final RxList<TarotCardEntity> cupCards = <TarotCardEntity>[].obs;
+  final RxList<TarotCardEntity> swordCards = <TarotCardEntity>[].obs;
+  final RxList<TarotCardEntity> pentacleCards = <TarotCardEntity>[].obs;
 
-  // Getters
-  List<TarotCard> get majorCards => _majorCards;
-  List<TarotCard> get cupCards => _cupCards;
-  List<TarotCard> get wandCards => _wandCards;
-  List<TarotCard> get swordCards => _swordCards;
-  List<Map<String, dynamic>> get blogs => _blogs;
-
-  @override
-  void onInit() {
-    super.onInit();
-    // Khởi tạo dữ liệu ảo
-    _initializeMockData();
-    _initializeBlogs();
+  ExploreController(this.apiClient) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await fetchBlogs();
+      await fetchTarotCards();
+    });
   }
 
-  /// Khởi tạo dữ liệu ảo cho 16 lá bài
-  void _initializeMockData() {
-    // Major Arcana (4 lá)
-    _majorCards.addAll([
-      TarotCard(
-        id: 'major_1',
-        name: 'The Fool',
-        nameVi: 'Kẻ Ngốc',
-        imagePath: 'assets/images/m1.jpg',
-        description: 'Lá bài đại diện cho sự khởi đầu, niềm tin và sự ngây thơ.',
-        meaning: 'Khởi đầu mới, niềm tin, sự ngây thơ, phiêu lưu, tự do.',
-        reversedMeaning: 'Thiếu suy nghĩ, thiếu kế hoạch, rủi ro không cần thiết.',
-      ),
-      TarotCard(
-        id: 'major_2',
-        name: 'The Magician',
-        nameVi: 'Pháp Sư',
-        imagePath: 'assets/images/m2.jpg',
-        description: 'Lá bài đại diện cho sức mạnh, ý chí và khả năng biến đổi.',
-        meaning: 'Sức mạnh, ý chí, khả năng, hành động, tập trung.',
-        reversedMeaning: 'Thiếu ý chí, lãng phí tài năng, thao túng.',
-      ),
-      TarotCard(
-        id: 'major_3',
-        name: 'The High Priestess',
-        nameVi: 'Nữ Tư Tế',
-        imagePath: 'assets/images/m3.jpg',
-        description: 'Lá bài đại diện cho trực giác, bí mật và sự khôn ngoan.',
-        meaning: 'Trực giác, bí mật, khôn ngoan, nội tâm, tiềm thức.',
-        reversedMeaning: 'Thiếu trực giác, bí mật bị tiết lộ, thiếu kết nối nội tâm.',
-      ),
-      TarotCard(
-        id: 'major_4',
-        name: 'The Empress',
-        nameVi: 'Hoàng Hậu',
-        imagePath: 'assets/images/m4.jpg',
-        description: 'Lá bài đại diện cho sự sinh sôi, phong phú và sáng tạo.',
-        meaning: 'Sinh sôi, phong phú, sáng tạo, nuôi dưỡng, tự nhiên.',
-        reversedMeaning: 'Thiếu sáng tạo, phụ thuộc, lãng phí.',
-      ),
-    ]);
-
-    // Cup (4 lá)
-    _cupCards.addAll([
-      TarotCard(
-        id: 'cup_1',
-        name: 'Ace of Cups',
-        nameVi: 'Át Cốc',
-        imagePath: 'assets/images/c1.jpg',
-        description: 'Lá bài đại diện cho tình yêu mới, cảm xúc và sự khởi đầu.',
-        meaning: 'Tình yêu mới, cảm xúc, khởi đầu, niềm vui, hạnh phúc.',
-        reversedMeaning: 'Cảm xúc bị đè nén, thiếu tình yêu, đau khổ.',
-      ),
-      TarotCard(
-        id: 'cup_2',
-        name: 'Two of Cups',
-        nameVi: 'Hai Cốc',
-        imagePath: 'assets/images/c2.jpg',
-        description: 'Lá bài đại diện cho sự kết hợp, hợp tác và tình bạn.',
-        meaning: 'Kết hợp, hợp tác, tình bạn, hôn nhân, cân bằng.',
-        reversedMeaning: 'Xung đột, mất cân bằng, chia tay.',
-      ),
-      TarotCard(
-        id: 'cup_3',
-        name: 'Three of Cups',
-        nameVi: 'Ba Cốc',
-        imagePath: 'assets/images/c3.jpg',
-        description: 'Lá bài đại diện cho niềm vui, tình bạn và sự ăn mừng.',
-        meaning: 'Niềm vui, tình bạn, ăn mừng, hội họp, hạnh phúc.',
-        reversedMeaning: 'Cô đơn, thiếu bạn bè, quá độ.',
-      ),
-      TarotCard(
-        id: 'cup_4',
-        name: 'Four of Cups',
-        nameVi: 'Bốn Cốc',
-        imagePath: 'assets/images/c4.jpg',
-        description: 'Lá bài đại diện cho sự thờ ơ, thiếu hài lòng và cơ hội bị bỏ lỡ.',
-        meaning: 'Thờ ơ, thiếu hài lòng, cơ hội bị bỏ lỡ, tự suy ngẫm.',
-        reversedMeaning: 'Chấp nhận cơ hội, hành động, tham gia.',
-      ),
-    ]);
-
-    // Wand (4 lá)
-    _wandCards.addAll([
-      TarotCard(
-        id: 'wand_1',
-        name: 'Ace of Wands',
-        nameVi: 'Át Gậy',
-        imagePath: 'assets/images/w1.jpg',
-        description: 'Lá bài đại diện cho năng lượng, đam mê và khởi đầu mới.',
-        meaning: 'Năng lượng, đam mê, khởi đầu, cảm hứng, sáng tạo.',
-        reversedMeaning: 'Thiếu năng lượng, mất đam mê, trì hoãn.',
-      ),
-      TarotCard(
-        id: 'wand_2',
-        name: 'Two of Wands',
-        nameVi: 'Hai Gậy',
-        imagePath: 'assets/images/w2.jpg',
-        description: 'Lá bài đại diện cho lập kế hoạch, quyết định và tương lai.',
-        meaning: 'Lập kế hoạch, quyết định, tương lai, khám phá, tự tin.',
-        reversedMeaning: 'Thiếu kế hoạch, sợ hãi, không quyết định.',
-      ),
-      TarotCard(
-        id: 'wand_3',
-        name: 'Three of Wands',
-        nameVi: 'Ba Gậy',
-        imagePath: 'assets/images/w3.jpg',
-        description: 'Lá bài đại diện cho sự mở rộng, khám phá và tầm nhìn xa.',
-        meaning: 'Mở rộng, khám phá, tầm nhìn xa, hợp tác, thành công.',
-        reversedMeaning: 'Thiếu tầm nhìn, hạn chế, thất bại.',
-      ),
-      TarotCard(
-        id: 'wand_4',
-        name: 'Four of Wands',
-        nameVi: 'Bốn Gậy',
-        imagePath: 'assets/images/w4.jpg',
-        description: 'Lá bài đại diện cho sự ổn định, hòa hợp và ăn mừng.',
-        meaning: 'Ổn định, hòa hợp, ăn mừng, thành tựu, hạnh phúc.',
-        reversedMeaning: 'Thiếu ổn định, xung đột, không hài lòng.',
-      ),
-    ]);
-
-    // Sword (4 lá)
-    _swordCards.addAll([
-      TarotCard(
-        id: 'sword_1',
-        name: 'Ace of Swords',
-        nameVi: 'Át Kiếm',
-        imagePath: 'assets/images/s1.jpg',
-        description: 'Lá bài đại diện cho sự rõ ràng, sự thật và quyết định.',
-        meaning: 'Rõ ràng, sự thật, quyết định, chiến thắng, công lý.',
-        reversedMeaning: 'Thiếu rõ ràng, dối trá, quyết định sai.',
-      ),
-      TarotCard(
-        id: 'sword_2',
-        name: 'Two of Swords',
-        nameVi: 'Hai Kiếm',
-        imagePath: 'assets/images/s2.jpg',
-        description: 'Lá bài đại diện cho sự lựa chọn khó khăn và cân bằng.',
-        meaning: 'Lựa chọn khó khăn, cân bằng, tránh né, quyết định.',
-        reversedMeaning: 'Thiếu quyết định, mất cân bằng, xung đột.',
-      ),
-      TarotCard(
-        id: 'sword_3',
-        name: 'Three of Swords',
-        nameVi: 'Ba Kiếm',
-        imagePath: 'assets/images/s3.jpg',
-        description: 'Lá bài đại diện cho đau khổ, mất mát và đau lòng.',
-        meaning: 'Đau khổ, mất mát, đau lòng, chia tay, thất vọng.',
-        reversedMeaning: 'Hồi phục, tha thứ, chữa lành.',
-      ),
-      TarotCard(
-        id: 'sword_4',
-        name: 'Four of Swords',
-        nameVi: 'Bốn Kiếm',
-        imagePath: 'assets/images/s4.jpg',
-        description: 'Lá bài đại diện cho sự nghỉ ngơi, phục hồi và suy ngẫm.',
-        meaning: 'Nghỉ ngơi, phục hồi, suy ngẫm, hòa bình, chữa lành.',
-        reversedMeaning: 'Kiệt sức, thiếu nghỉ ngơi, căng thẳng.',
-      ),
-    ]);
-  }
-
-  /// Khởi tạo danh sách blog
-  void _initializeBlogs() {
-    _blogs.addAll([
-      {
-        'id': 'blog_1',
-        'title': 'Hướng dẫn đọc bài Tarot cho người mới bắt đầu',
-        'description': 'Tìm hiểu cách đọc bài Tarot cơ bản và ý nghĩa của các lá bài',
-        'imagePath': 'assets/images/blog1.jpg',
-      },
-      {
-        'id': 'blog_2',
-        'title': 'Ý nghĩa của Major Arcana trong Tarot',
-        'description': 'Khám phá ý nghĩa sâu sắc của 22 lá bài Major Arcana',
-        'imagePath': 'assets/images/blog2.jpg',
-      },
-      {
-        'id': 'blog_3',
-        'title': 'Cách chọn bộ bài Tarot phù hợp',
-        'description': 'Hướng dẫn chọn bộ bài Tarot đầu tiên của bạn',
-        'imagePath': 'assets/images/blog3.jpg',
-      },
-      {
-        'id': 'blog_4',
-        'title': 'Các spread phổ biến trong Tarot',
-        'description': 'Tìm hiểu các cách trải bài Tarot phổ biến nhất',
-        'imagePath': 'assets/images/blog4.jpg',
-      },
-      {
-        'id': 'blog_5',
-        'title': 'Làm thế nào để kết nối với bộ bài Tarot',
-        'description': 'Các cách để tạo kết nối tâm linh với bộ bài của bạn',
-        'imagePath': 'assets/images/blog5.jpg',
-      },
-      {
-        'id': 'blog_6',
-        'title': 'Tarot và cuộc sống hàng ngày',
-        'description': 'Ứng dụng Tarot vào cuộc sống để có hướng dẫn tốt hơn',
-        'imagePath': 'assets/images/blog6.jpg',
-      },
-    ]);
-  }
-
-  /// Navigate to view all cards of a type
-  /// 
-  /// Navigates to ViewAllCardsPage với cardType và title tương ứng
-  void viewAllCards(String cardType) {
-    // Map cardType to title
-    String title;
-    switch (cardType) {
-      case 'Major':
-        title = 'Major Arcana';
-        break;
-      case 'Cup':
-        title = 'Cup';
-        break;
-      case 'Wand':
-        title = 'Wand';
-        break;
-      case 'Sword':
-        title = 'Sword';
-        break;
-      default:
-        title = cardType;
-    }
-
-    // Navigate to view all cards page
-    Get.toNamed(
-      '/view-all-cards',
-      arguments: {
-        'cardType': cardType,
-        'title': title,
-      },
+  Future<void> fetchBlogs() async {
+    developer.log(
+      'Fetching blogs',
+      name: 'ExploreController',
     );
-  }
-}
 
+    try {
+      isLoading.value = true;
+      errorMessage.value = '';
+
+      final response = await apiClient.getBlogs();
+
+      if (response == null) {
+        throw Exception('Blog detail response is null');
+      }
+
+      blogs.value = response.docs ?? [];
+
+      developer.log(
+        'Fetch blogs success',
+        name: 'ploreController',
+      );
+    } catch (e, stackTrace) {
+      errorMessage.value = 'Không thể tải list sản phẩm';
+
+      developer.log(
+        'Fetch blogs failed',
+        name: 'Explore Controller',
+        error: e,
+        stackTrace: stackTrace,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> fetchTarotCards() async {
+    developer.log('Fetching cards', name: 'ExploreController');
+
+    try {
+      isLoading.value = true;
+      errorMessage.value = '';
+
+      // chạy song song tất cả request
+      final results = await Future.wait([
+        apiClient.getTarotCards(
+          arcana: Arcana.majorArcana.label,
+          limit: 4,
+        ),
+        apiClient.getTarotCards(
+          arcana: Arcana.minorArcana.label,
+          suit: "Cups",
+          limit: 4,
+        ),
+        apiClient.getTarotCards(
+          arcana: Arcana.minorArcana.label,
+          suit: "Swords",
+          limit: 4,
+        ),
+        apiClient.getTarotCards(
+          arcana: Arcana.minorArcana.label,
+          suit: "Wands",
+          limit: 4,
+        ),
+        apiClient.getTarotCards(
+          arcana: Arcana.minorArcana.label,
+          suit: "Pentacles",
+          limit: 4,
+        ),
+      ]);
+
+      // gán kết quả
+      majorCards.addAll(results[0]);
+      cupCards.addAll(results[1]);
+      swordCards.addAll(results[2]);
+      wandCards.addAll(results[3]);
+      pentacleCards.addAll(results[4]);
+
+      developer.log('Fetch cards success', name: 'ExploreController');
+    } catch (e, stackTrace) {
+      errorMessage.value = 'Không thể tải list cards';
+      developer.log(
+        'Fetch cards failed',
+        name: 'ExploreController',
+        error: e,
+        stackTrace: stackTrace,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+
+
+}

@@ -50,9 +50,13 @@ class OrderHistoryPage extends GetView<OrderHistoryController> {
             //   child: Obx(() {
             //     if (controller.isLoading) {
             //       return const Center(
-            //         child: CircularProgressIndicator(
-            //           color: ThemeConfig.textGold,
-            //         ),
+            //         child: Lottie.asset(
+            //                         'assets/lottie/loading_ball.json',
+            //                         repeat: true,
+            //                         height: 70,
+            //                         width: 70,
+            //                         fit: BoxFit.contain,
+            //                       ),
             //       );
             //     }
             //

@@ -12,9 +12,11 @@ import 'card_detail_controller.dart';
 class CardDetailBinding extends Bindings {
   @override
   void dependencies() {
-    // Sử dụng put thay vì lazyPut để đảm bảo controller được tạo ngay
-    // Controller sẽ được dispose tự động khi pop page
-    Get.put<CardDetailController>(CardDetailController(), permanent: false);
+    final args = Get.arguments;
+    final cardId = (args is Map) ? (args['cardId']?.toString() ?? '') : '';
+
+    Get.put<CardDetailController>(CardDetailController(cardId, Get.find()),
+        permanent: false);
   }
 }
 
@@ -154,11 +156,12 @@ class CardDetailPage extends GetView<CardDetailController> {
       final isFlipped = controller.isCardFlipped;
 
       final flipCardWidget = Hero(
-        tag: 'card_${card.id}',
+        tag: 'card_${card.value.id}',
         child: FlipCard(
-          key: ValueKey('flipCard_${card.id}'), // Key cố định để widget không bị recreate
+          key: ValueKey('flipCard_${card.value.id}'),
+          // Key cố định để widget không bị recreate
           backImage: 'assets/images/back_card.png',
-          frontImage: card.imagePath,
+          frontImage: card.value.imageUrl ?? "",
           width: 250,
           height: 420,
           initialFlipped: isFlipped,
@@ -192,8 +195,8 @@ class CardDetailPage extends GetView<CardDetailController> {
     return Column(
       children: [
         TypewriterText(
-          card.nameVi,
-          key: ValueKey('nameVi_${card.id}_${controller.showCardDetail}'),
+          card.value.name ?? "",
+          key: ValueKey('nameVi_${card.value.id}_${controller.showCardDetail}'),
           fontSize: 36,
           color: ThemeConfig.textGold,
           fontWeight: FontWeight.bold,
@@ -203,8 +206,8 @@ class CardDetailPage extends GetView<CardDetailController> {
         ),
         const SizedBox(height: 10),
         TypewriterText(
-          card.name,
-          key: ValueKey('name_${card.id}_${controller.showCardDetail}'),
+          card.value.name ?? "",
+          key: ValueKey('name_${card.value.id}_${controller.showCardDetail}'),
           fontSize: 24,
           color: ThemeConfig.textWhite,
           textAlign: TextAlign.center,
@@ -234,7 +237,7 @@ class CardDetailPage extends GetView<CardDetailController> {
         children: [
           TypewriterText(
             'Mô tả',
-            key: ValueKey('desc_title_${card.id}_${controller.showCardDetail}'),
+            key: ValueKey('desc_title_${card.value.id}_${controller.showCardDetail}'),
             fontSize: 22,
             color: ThemeConfig.textGold,
             fontWeight: FontWeight.bold,
@@ -243,8 +246,8 @@ class CardDetailPage extends GetView<CardDetailController> {
           ),
           const SizedBox(height: 10),
           TypewriterText(
-            card.description,
-            key: ValueKey('desc_${card.id}_${controller.showCardDetail}'),
+            card.value.shortDescription ?? "",
+            key: ValueKey('desc_${card.value.id}_${controller.showCardDetail}'),
             fontSize: 16,
             color: ThemeConfig.textWhite,
             delay: const Duration(milliseconds: 500),
@@ -275,7 +278,7 @@ class CardDetailPage extends GetView<CardDetailController> {
           TypewriterText(
             'Ý nghĩa',
             key: ValueKey(
-                'meaning_title_${card.id}_${controller.showCardDetail}'),
+                'meaning_title_${card.value.id}_${controller.showCardDetail}'),
             fontSize: 22,
             color: ThemeConfig.textGold,
             fontWeight: FontWeight.bold,
@@ -284,8 +287,8 @@ class CardDetailPage extends GetView<CardDetailController> {
           ),
           const SizedBox(height: 10),
           TypewriterText(
-            card.meaning,
-            key: ValueKey('meaning_${card.id}_${controller.showCardDetail}'),
+            card.value.coreMeanings?.meaningUpright ?? "",
+            key: ValueKey('meaning_${card.value.id}_${controller.showCardDetail}'),
             fontSize: 16,
             color: ThemeConfig.textWhite,
             delay: const Duration(milliseconds: 700),
@@ -316,7 +319,7 @@ class CardDetailPage extends GetView<CardDetailController> {
           TypewriterText(
             'Ý nghĩa ngược',
             key: ValueKey(
-                'reversed_title_${card.id}_${controller.showCardDetail}'),
+                'reversed_title_${card.value.id}_${controller.showCardDetail}'),
             fontSize: 22,
             color: ThemeConfig.textGold,
             fontWeight: FontWeight.bold,
@@ -325,8 +328,8 @@ class CardDetailPage extends GetView<CardDetailController> {
           ),
           const SizedBox(height: 10),
           TypewriterText(
-            card.reversedMeaning,
-            key: ValueKey('reversed_${card.id}_${controller.showCardDetail}'),
+            card.value.coreMeanings?.meaningReversed ?? "",
+            key: ValueKey('reversed_${card.value.id}_${controller.showCardDetail}'),
             fontSize: 16,
             color: ThemeConfig.textWhite,
             delay: const Duration(milliseconds: 900),

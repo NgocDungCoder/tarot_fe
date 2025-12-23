@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:tarot_fe/models/tarot_card_entity.dart';
 import 'package:video_player/video_player.dart';
 import '../../../configs/styles/theme_config.dart';
 import '../../../models/tarot_card.dart';
@@ -12,7 +13,8 @@ import 'card_draw_controller.dart';
 class CardDrawBinding extends Bindings {
   @override
   void dependencies() {
-    Get.put<CardDrawController>(CardDrawController(), permanent: false);
+    Get.put<CardDrawController>(
+        CardDrawController(Get.find()), permanent: false);
   }
 }
 
@@ -32,7 +34,7 @@ class CardDrawPage extends GetView<CardDrawController> {
           SafeArea(
             child: Obx(() {
               final hasSelected = controller.hasSelected;
-              final selectedCard = controller.selectedCard;
+              final selectedCard = controller.selectedCard.value;
 
               return SingleChildScrollView(
                 child: Column(
@@ -87,7 +89,7 @@ class CardDrawPage extends GetView<CardDrawController> {
             _buildActionButton(
               icon: Icons.stars,
               label: '${controller.remainingDraws} lượt còn lại',
-              onTap: () {},
+              onTap: controller.fetchRandomCard,
             ),
             _buildActionButton(
               icon: Icons.add_circle_outline,
@@ -250,7 +252,10 @@ class CardDrawPage extends GetView<CardDrawController> {
 
         final cardWidth = 120.0;
         final cardHeight = 200.0;
-        final centerX = MediaQuery.of(Get.context!).size.width / 2;
+        final centerX = MediaQuery
+            .of(Get.context!)
+            .size
+            .width / 2;
         final zoomedWidth = 210.0;
         final zoomedHeight = 350.0;
 
@@ -331,18 +336,22 @@ class CardDrawPage extends GetView<CardDrawController> {
                       angle: rotationAngle,
                       child: IgnorePointer(
                         ignoring: !canTap || !controller.canDraw,
-                        child: GestureDetector(
-                          onTap: (canTap && controller.canDraw)
-                              ? () => controller.selectCard(index)
-                              : null,
-                          child: _buildCardWidget(
-                            index,
-                            cards[index],
-                            isSelected,
-                            isZoomed,
-                            isFlipping && isSelected && isZoomCompleted,
-                          ),
-                        ),
+                        child: Obx(() {
+                          return GestureDetector(
+                            onTap: (canTap && controller.canDraw)
+                                ? () => controller.selectCard(index)
+                                : null,
+                            child: cards.isEmpty
+                                ? const SizedBox.shrink()
+                                : _buildCardWidget(
+                              index,
+                              cards[index],
+                              isSelected,
+                              isZoomed,
+                              isFlipping && isSelected && isZoomCompleted,
+                            ),
+                          );
+                        }),
                       ),
                     );
                   },
@@ -366,13 +375,11 @@ class CardDrawPage extends GetView<CardDrawController> {
 
   /// Build card widget với hero và flip animation
   /// Index 2 là card ở giữa (hero từ home)
-  Widget _buildCardWidget(
-    int index,
-    TarotCard card,
-    bool isSelected,
-    bool isZoomed,
-    bool isFlipping,
-  ) {
+  Widget _buildCardWidget(int index,
+      TarotCardEntity card,
+      bool isSelected,
+      bool isZoomed,
+      bool isFlipping,) {
     final selectedIndex = controller.selectedIndex;
     final hasSelected = controller.hasSelected;
     final isZooming = controller.isZooming;
@@ -388,7 +395,7 @@ class CardDrawPage extends GetView<CardDrawController> {
       cardContent = FlipCard(
         key: ValueKey('flipCard_${card.id}_${isSelected}_${isFlipping}'),
         backImage: 'assets/images/back_card.png',
-        frontImage: controller.selectedCard.imagePath,
+        frontImage: controller.selectedCard.value.imageUrl ?? "",
         width: 210,
         height: 350,
         initialFlipped: false,
@@ -481,8 +488,8 @@ class CardDrawPage extends GetView<CardDrawController> {
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(14),
-            child: Image.asset(
-              card.imagePath,
+            child: Image.network(
+              card.value.imageUrl ?? "",
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
                 return Container(
@@ -504,11 +511,11 @@ class CardDrawPage extends GetView<CardDrawController> {
   }
 
   /// Build card name
-  Widget _buildCardName(card) {
+  Widget _buildCardName(TarotCardEntity card) {
     return Column(
       children: [
         TypewriterText(
-          card.nameVi,
+          card.name ?? "",
           key: ValueKey('nameVi_${card.id}_${controller.showCardDetail}'),
           fontSize: 32,
           color: ThemeConfig.textGold,
@@ -519,7 +526,7 @@ class CardDrawPage extends GetView<CardDrawController> {
         ),
         const SizedBox(height: 10),
         TypewriterText(
-          card.name,
+          card.name ?? "",
           key: ValueKey('name_${card.id}_${controller.showCardDetail}'),
           fontSize: 20,
           color: ThemeConfig.textWhite,
@@ -532,9 +539,10 @@ class CardDrawPage extends GetView<CardDrawController> {
   }
 
   /// Build description container
-  Widget _buildDescriptionContainer(card) {
+  Widget _buildDescriptionContainer(TarotCardEntity card) {
     return Container(
       padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
         color: Colors.black.withOpacity(0.9),
         borderRadius: BorderRadius.circular(15),
@@ -557,7 +565,7 @@ class CardDrawPage extends GetView<CardDrawController> {
           ),
           const SizedBox(height: 10),
           TypewriterText(
-            card.description,
+            card.shortDescription ?? "",
             key: ValueKey('desc_${card.id}_${controller.showCardDetail}'),
             fontSize: 16,
             color: ThemeConfig.textWhite,
@@ -570,8 +578,9 @@ class CardDrawPage extends GetView<CardDrawController> {
   }
 
   /// Build meaning container
-  Widget _buildMeaningContainer(card) {
+  Widget _buildMeaningContainer(TarotCardEntity card) {
     return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 10),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.black.withOpacity(0.9),
@@ -596,7 +605,7 @@ class CardDrawPage extends GetView<CardDrawController> {
           ),
           const SizedBox(height: 10),
           TypewriterText(
-            card.meaning,
+            card.coreMeanings?.meaningUpright ?? "",
             key: ValueKey('meaning_${card.id}_${controller.showCardDetail}'),
             fontSize: 16,
             color: ThemeConfig.textWhite,
@@ -609,9 +618,10 @@ class CardDrawPage extends GetView<CardDrawController> {
   }
 
   /// Build reversed meaning container
-  Widget _buildReversedMeaningContainer(card) {
+  Widget _buildReversedMeaningContainer(TarotCardEntity card) {
     return Container(
       padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
         color: Colors.black.withOpacity(0.9),
         borderRadius: BorderRadius.circular(15),
@@ -635,7 +645,7 @@ class CardDrawPage extends GetView<CardDrawController> {
           ),
           const SizedBox(height: 10),
           TypewriterText(
-            card.reversedMeaning,
+            card.coreMeanings?.meaningReversed ?? "",
             key: ValueKey('reversed_${card.id}_${controller.showCardDetail}'),
             fontSize: 16,
             color: ThemeConfig.textWhite,

@@ -12,10 +12,11 @@ import '../../cart/cart_controller.dart';
 class ShopController extends GetxController {
   final ApiClient apiClient;
   final isLoading = false.obs;
+  final errorMessage = "".obs;
+
   final RxList<ProductId> products = <ProductId>[].obs;
   final RxList<BannerEntity> banners = <BannerEntity>[].obs;
 
-  final errorMessage = "".obs;
   final cartController = Get.find<CartController>();
 
   ShopController(this.apiClient) {

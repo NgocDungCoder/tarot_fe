@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:lottie/lottie.dart';
 import '../../../configs/routes/route.dart';
 import '../../../configs/styles/theme_config.dart';
 import '../../../models/card_draw_history.dart';
@@ -62,9 +63,13 @@ class CardDrawHistoryPage extends GetView<CardDrawHistoryController> {
             Expanded(
               child: Obx(() {
                 if (controller.isLoading) {
-                  return const Center(
-                    child: CircularProgressIndicator(
-                      color: ThemeConfig.textGold,
+                  return Center(
+                    child: Lottie.asset(
+                      'assets/lottie/loading_ball.json',
+                      repeat: true,
+                      height: 70,
+                      width: 70,
+                      fit: BoxFit.contain,
                     ),
                   );
                 }

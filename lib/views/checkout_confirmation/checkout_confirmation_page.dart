@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:lottie/lottie.dart';
 import '../../../configs/styles/theme_config.dart';
 import '../../../widget/custom_text.dart';
 import '../../../widget/video_background.dart';
@@ -42,9 +43,13 @@ class CheckoutConfirmationPage extends GetView<CheckoutConfirmationController> {
         ),
         body: Obx(() {
           if (controller.isLoading) {
-            return const Center(
-              child: CircularProgressIndicator(
-                color: ThemeConfig.textGold,
+            return Center(
+              child: Lottie.asset(
+                'assets/lottie/loading_ball.json',
+                repeat: true,
+                height: 70,
+                width: 70,
+                fit: BoxFit.contain,
               ),
             );
           }
@@ -524,12 +529,15 @@ class CheckoutConfirmationPage extends GetView<CheckoutConfirmationController> {
             elevation: 5,
           ),
           child: controller.isProcessing
-              ? const SizedBox(
+              ? SizedBox(
             width: 24,
             height: 24,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+            child: Lottie.asset(
+              'assets/lottie/loading_ball.json',
+              repeat: true,
+              height: 70,
+              width: 70,
+              fit: BoxFit.contain,
             ),
           )
               : const CustomText(

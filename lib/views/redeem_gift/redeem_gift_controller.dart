@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer' as developer;
 
 import 'package:flutter/cupertino.dart';
@@ -18,6 +19,8 @@ class RedeemGiftController extends GetxController {
   final errorMessage = "".obs;
   final gifts = <GiftEntity>[].obs;
   final categories = <CategoryEntity>[].obs;
+  Timer? _debounce;
+
 
   // User's current reward points
   int get currentRewardPoints {
@@ -30,10 +33,12 @@ class RedeemGiftController extends GetxController {
   // Filter by category
   final _selectedCategory = 'All'.obs;
   String get selectedCategory => _selectedCategory.value;
+  final _selectedCategoryId = ''.obs;
 
   // Search query
   final _searchQuery = ''.obs;
   String get searchQuery => _searchQuery.value;
+
 
   RedeemGiftController(this.apiClient) {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -80,7 +85,7 @@ class RedeemGiftController extends GetxController {
     }
   }
 
-  Future<void> fetchGifts () async {
+  Future<void> fetchGifts() async {
     developer.log(
       'Fetching gifts',
       name: 'ShopController',
@@ -90,7 +95,7 @@ class RedeemGiftController extends GetxController {
       isLoading.value = true;
       errorMessage.value = '';
 
-      final response = await apiClient.getGifts();
+      final response = await apiClient.getGifts(search: _searchQuery.value,categoryId: _selectedCategoryId.value);
 
       if (response == null) {
         throw Exception('gift detail response is null');
@@ -117,35 +122,41 @@ class RedeemGiftController extends GetxController {
   }
 
   /// Get filtered gifts based on category and search query
-  List<GiftEntity> get filteredGifts {
-    var filtered = gifts.where((gift) {
-      // Filter by category
-      if (_selectedCategory.value != 'All' &&
-          gift.categoryId!.name != _selectedCategory.value) {
-        return false;
-      }
-
-      // Filter by search query
-      if (_searchQuery.value.isNotEmpty) {
-        final query = _searchQuery.value.toLowerCase();
-        return gift.name!.toLowerCase().contains(query) ||
-            gift.description!.toLowerCase().contains(query);
-      }
-
-      return true;
-    }).toList();
-
-    return filtered;
-  }
+  // List<GiftEntity> get filteredGifts {
+  //   var filtered = gifts.where((gift) {
+  //     // Filter by category
+  //     if (_selectedCategory.value != 'All' &&
+  //         gift.categoryId!.name != _selectedCategory.value) {
+  //       return false;
+  //     }
+  //
+  //     // Filter by search query
+  //     if (_searchQuery.value.isNotEmpty) {
+  //       final query = _searchQuery.value.toLowerCase();
+  //       return gift.name!.toLowerCase().contains(query) ||
+  //           gift.description!.toLowerCase().contains(query);
+  //     }
+  //
+  //     return true;
+  //   }).toList();
+  //
+  //   return filtered;
+  // }
 
   /// Set selected category
-  void setCategory(String category) {
-    _selectedCategory.value = category;
+  void setCategory(CategoryEntity category) {
+    _selectedCategory.value = category.name ?? "";
+    _selectedCategoryId.value = category.id ?? "";
   }
 
   /// Set search query
   void setSearchQuery(String query) {
     _searchQuery.value = query;
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 800), () {
+      fetchGifts();
+    });
+
   }
 
   /// Check if user can redeem a gift

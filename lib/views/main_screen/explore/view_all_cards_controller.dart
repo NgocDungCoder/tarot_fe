@@ -1,5 +1,10 @@
+import 'dart:developer' as developer;
+
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:tarot_fe/models/tarot_card_entity.dart';
 import '../../../models/tarot_card.dart';
+import '../../../providers/api_client.dart';
 import 'explore_controller.dart';
 import 'explore_page.dart';
 
@@ -7,73 +12,72 @@ import 'explore_page.dart';
 /// 
 /// Manages the list of cards for a specific card type (Major, Cup, Wand, Sword)
 class ViewAllCardsController extends GetxController {
+
+  final ApiClient apiClient;
+  final isLoading = false.obs;
+  final errorMessage = "".obs;
+
+
   // Card type và danh sách lá bài
-  late final String cardType;
-  late final String title;
-  final List<TarotCard> _cards = [];
-
+  final String cardType;
+  final title = "".obs;
+  final RxList<TarotCardEntity> _cards = <TarotCardEntity>[].obs;
+  late final String arcana;
+  late final String suit;
   // Getters
-  List<TarotCard> get cards => _cards;
+  List<TarotCardEntity> get cards => _cards;
 
-  @override
-  void onInit() {
-    super.onInit();
-    // Get card type và title từ arguments
-    final arguments = Get.arguments;
-    if (arguments is Map<String, dynamic>) {
-      cardType = arguments['cardType'] as String? ?? '';
-      title = arguments['title'] as String? ?? cardType;
-    } else if (arguments is String) {
-      cardType = arguments;
-      title = cardType;
-    } else {
-      cardType = '';
-      title = 'All Cards';
-    }
+  ViewAllCardsController(this.cardType, this.apiClient) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
 
-    // Load cards từ ExploreController
-    _loadCards();
+      if(cardType == "Major") {
+        title.value = 'Major';
+        arcana = Arcana.majorArcana.label;
+        suit = "";
+      } else {
+        title.value = cardType;
+        arcana = Arcana.minorArcana.label;
+        suit = cardType;
+      }
+
+      await fetchTarotCards();
+    });
   }
+
 
   /// Load cards từ ExploreController dựa trên cardType
-  void _loadCards() {
-    // Get ExploreController instance
-    // Nếu chưa có thì tạo mới
-    if (!Get.isRegistered<ExploreController>()) {
-      ExploreBinding().dependencies();
-    }
-    final exploreController = Get.find<ExploreController>();
 
-    // Lấy danh sách lá bài theo loại
-    switch (cardType) {
-      case 'Major':
-        _cards.addAll(exploreController.majorCards);
-        break;
-      case 'Cup':
-        _cards.addAll(exploreController.cupCards);
-        break;
-      case 'Wand':
-        _cards.addAll(exploreController.wandCards);
-        break;
-      case 'Sword':
-        _cards.addAll(exploreController.swordCards);
-        break;
-      default:
-        // Nếu không match, lấy tất cả
-        _cards.addAll(exploreController.majorCards);
-        _cards.addAll(exploreController.cupCards);
-        _cards.addAll(exploreController.wandCards);
-        _cards.addAll(exploreController.swordCards);
-        break;
-    }
-  }
-
-  /// Navigate to card detail page
-  void navigateToCardDetail(TarotCard card) {
-    Get.toNamed(
-      '/card-detail',
-      arguments: card,
+  Future<void> fetchTarotCards () async {
+    developer.log(
+      'Fetching cards',
+      name: 'ExploreController',
     );
+
+    try {
+      isLoading.value = true;
+      errorMessage.value = '';
+      final response = await apiClient.getTarotCards(arcana: arcana, suit: suit);
+
+      _cards.addAll(response);
+
+
+      developer.log(
+        'Fetch cards success',
+        name: 'exploreController',
+      );
+    } catch (e, stackTrace) {
+      errorMessage.value = 'Không thể tải list cards';
+
+      developer.log(
+        'Fetch cards failed',
+        name: 'Explore Controller',
+        error: e,
+        stackTrace: stackTrace,
+      );
+    } finally {
+      isLoading.value = false;
+    }
   }
+
 }
 

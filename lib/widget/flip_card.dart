@@ -205,7 +205,7 @@ class _FlipCardState extends State<FlipCard>
                         // Transform bên ngoài đã quay đến góc angle (90-180 độ)
                         alignment: Alignment.center,
                         transform: Matrix4.identity()..rotateY(math.pi), // π = 180 độ
-                        child: Image.asset(
+                        child: Image.network(
                           widget.frontImage,
                           fit: BoxFit.cover,
                           filterQuality: FilterQuality.high,

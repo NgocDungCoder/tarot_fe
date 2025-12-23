@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:tarot_fe/views/view_all_blogs/view_all_blogs_page.dart';
 
 import '../../views/card_detail/card_detail_page.dart';
 import '../../views/card_draw/card_draw_page.dart';
@@ -146,6 +147,9 @@ abstract class Routes {
   
   /// View All Cards
   static const viewAllCards = RoutePath('/view-all-cards');
+
+  /// View All Blogs
+  static const viewAllBlogs = RoutePath('/view-all-blogs');
   
   /// Checkout Confirmation
   static const checkoutConfirmation = RoutePath('/checkout-confirmation');
@@ -243,6 +247,13 @@ final List<GetPage> getPages = [
     name: Routes.paymentSuccess.sp,
     page: () => const PaymentSuccessPage(),
     binding: PaymentSuccessBinding(),
+    transition: Transition.fade,
+    transitionDuration: const Duration(milliseconds: 300),
+  ),
+  GetPage(
+    name: Routes.viewAllBlogs.sp,
+    page: () => ViewAllBlogsPage(),
+    binding: ViewAllBlogsBinding(),
     transition: Transition.fade,
     transitionDuration: const Duration(milliseconds: 300),
   ),
